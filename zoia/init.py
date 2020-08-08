@@ -27,7 +27,7 @@ def init(directory):
         if directory is None:
             directory = default_directory
 
-    if len(os.listdir(directory)) != 0:
+    if os.path.exists(directory) and len(os.listdir(directory)) != 0:
         click.secho('ERROR: Directory provided must be empty. Exiting.')
         sys.exit(1)
 

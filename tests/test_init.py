@@ -18,12 +18,12 @@ class TestInit(unittest.TestCase):
     def tearDown(self):
         self.config_file.close()
 
-    @unittest.mock.patch('zoia.init.ZOIA_CONFIG_ROOT')
-    def test_init_denovo(self, mock_root):
-        mock_root.return_value = self.config_filename
-
+    def test_init_denovo(self):
         runner = CliRunner()
         with runner.isolated_filesystem():
-            result = runner.invoke(zoia.init.init, input='\n')
-            self.assertEqual(result.exit_code, 0)
-            self.assertTrue(os.path.isfile('.metadata.json'))
+            with unittest.mock.patch(
+                'zoia.init.ZOIA_CONFIG_ROOT', self.config_filename
+            ):
+                result = runner.invoke(zoia.init.init, input='\n')
+                self.assertEqual(result.exit_code, 0)
+                self.assertTrue(os.path.isfile('.metadata.json'))
