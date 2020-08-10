@@ -1,11 +1,15 @@
 # To-do list
 
 * [ ] Write `zoia init`
+* [ ] Write `zoia add`
+    * [ ] From DOI
+    * [ ] From arXiv ID
+    * [ ] From ISBN
+    * [ ] From BibID
 * [ ] Write `zoia open`
 * [ ] Write `zoia note`
     * [ ] Add authors, title, etc. if not already there.
     * [ ] Update the metadata if the tags change.
-* [ ] Write `zoia add`
 * [ ] Write `zoia tag`
 * [ ] Write `zoia find`
 * [ ] Add more config options
