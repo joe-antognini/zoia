@@ -2,9 +2,18 @@
 
 import json
 import os
+from typing import List
 
 from zoia.config import get_library_root
 from zoia.config import ZOIA_METADATA_FILENAME
+
+
+@dataclass
+class Metadatum:
+    title: str
+    # TODO: Split out first and last names.
+    authors: List[str]
+    year: int
 
 
 def load_metadata():

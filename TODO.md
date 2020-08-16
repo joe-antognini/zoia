@@ -1,5 +1,8 @@
 # To-do list
 
+* [ ] Write a class to represent an object's metadata.
+* [ ] Get a split of first names and last names in author lists.
+* [ ] Write the function to generate citekeys.
 * [ ] Write `zoia init`
 * [ ] Write `zoia add`
     * [ ] From DOI
