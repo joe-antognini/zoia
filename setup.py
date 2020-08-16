@@ -17,6 +17,7 @@ setup(
     packages=['zoia'],
     install_requires=[
         'click>=7.1.2',
+        'feedparser>=5.2.1',
         'pyyaml>=5.3.1',
     ],
     entry_points={
