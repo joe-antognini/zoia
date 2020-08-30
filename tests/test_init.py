@@ -64,11 +64,14 @@ class TestGetDefaultDirectory(unittest.TestCase):
 
 
 class TestInit(unittest.TestCase):
-    @unittest.mock.patch('zoia.init.zoia.metadata.write_metadata')
+    @unittest.mock.patch('zoia.init.zoia.metadata.initialize_metadata')
     @unittest.mock.patch('zoia.init.set_library_root')
     @unittest.mock.patch('zoia.init.get_library_root')
     def test_init_denovo(
-        self, mock_library_root, mock_set_library_root, mock_write_metadata
+        self,
+        mock_library_root,
+        mock_set_library_root,
+        mock_initialize_metadata,
     ):
         mock_library_root.return_value = None
         runner = CliRunner()
@@ -76,4 +79,4 @@ class TestInit(unittest.TestCase):
             result = runner.invoke(zoia.init.init, input='\n')
             self.assertEqual(result.exit_code, 0)
             mock_set_library_root.assert_called_with(os.getcwd())
-        mock_write_metadata.assert_called_once()
+        mock_initialize_metadata.assert_called_once()

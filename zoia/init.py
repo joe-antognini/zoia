@@ -74,7 +74,7 @@ def init(directory):
     set_library_root(directory)
 
     # Start with an empty dictionary in the metadata file.
-    zoia.metadata.write_metadata({})
+    zoia.metadata.initialize_metadata()
 
     click.secho(
         f'Your zoia library was successfully initialized at {directory}!',

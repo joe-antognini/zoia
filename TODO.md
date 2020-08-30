@@ -1,12 +1,12 @@
 # To-do list
 
 * [ ] Write a class to represent an object's metadata.
-* [ ] Get a split of first names and last names in author lists.
-* [ ] Write the function to generate citekeys.
-* [ ] Write `zoia init`
-* [ ] Write `zoia add`
+* [X] Get a split of first names and last names in author lists.
+* [O] Write the function to generate citekeys.
+* [X] Write `zoia init`
+* [.] Write `zoia add`
     * [ ] From DOI
-    * [ ] From arXiv ID
+    * [o] From arXiv ID
     * [ ] From ISBN
     * [ ] From BibID
 * [ ] Write `zoia open`
@@ -23,6 +23,7 @@
 * [ ] Finish writing the README.
 * [ ] Write docs
 * [ ] Benchmark performance with libraries of various sizes.
+* [ ] Refactor code to minimize I/O reads.
 * [ ] Add SQLite database backend
 * [ ] Write a web app.
 * [ ] `zoia export`

@@ -57,7 +57,7 @@ def _get_arxiv_metadata(identifier):
                 f'Identifier {identifier} not found'
             )
             
-    except KeyError, IndexError:
+    except (KeyError, IndexError) as e:
         raise ZoiaExternalApiException(f'Identifier {identifier} not found')
 
     publication_date = datetime.strptime(
@@ -92,7 +92,7 @@ def _get_arxiv_metadata(identifier):
 def _get_doi_metadata(doi):
     response = requests.get(
         os.path.join('https://doi.org', doi),
-        headers={'Accept':, 'application/x-bibtex'},
+        headers={'Accept': 'application/x-bibtex'},
     )
     _validate_response(response, doi)
     parser = bibtexparser.BibTexParser(
@@ -106,6 +106,7 @@ def _get_doi_metadata(doi):
 
 
 def _add_arxiv_id(identifier):
+    # TODO: Check if identifier already exists in database.
     metadata = _get_arxiv_metadata(identifier)
     if 'doi' in metadata:
         doi_metadata = _get_doi_metadata(metadata['doi'])
