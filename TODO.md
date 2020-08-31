@@ -2,7 +2,7 @@
 
 * [ ] Write a class to represent an object's metadata.
 * [X] Get a split of first names and last names in author lists.
-* [O] Write the function to generate citekeys.
+* [X] Write the function to generate citekeys.
 * [X] Write `zoia init`
 * [.] Write `zoia add`
     * [ ] From DOI

@@ -1,5 +1,6 @@
 """Functions to create a unique citekey."""
 
+import string
 import unicodedata
 
 import zoia.metadata
@@ -54,25 +55,28 @@ def _get_title_start(title):
     return title_words[0]
 
 
-def _propose_citekey(joined_names, year, first_word_of_title):
-    citekey = f'{joined_names}{year}-{first_word_of_title}'
+def _apply_citekey_format(
+    name_string, year, first_word_of_title, identifier=None
+):
+    """Create a citekey in the appropriate format."""
+    citekey = (
+        f'{name_string}{year}'
+        f'{identifier if identifier else ""}-{first_word_of_title}'
+    )
     return _normalize_string(citekey)
 
 
-def _resolve_collisions(proposed_citekey):
-    """Fix potential collisions between proposed and existing citekeys."""
-    metadata = zoia.metadata.load_metadata()
-    if proposed_citekey in metadata:
-        # TODO
-        pass
-
-    # TODO: Handle the case of an existing key of the form "nameYYa-title".
-
-    # TODO: If there is a collision, figure out which key should go first based
-    # on date.
-
-    # TODO: Figure out the best way to return information that other citekeys
-    # need to be renamed.
+def _generate_identifiers():
+    i = 1
+    while True:
+        identifiers = []
+        j = i
+        while j >= 0:
+            identifiers.append(string.ascii_lowercase[j % 26])
+            j = j // 26 - 1
+        identifiers = identifiers[::-1]
+        i += 1
+        yield ''.join(identifiers)
 
 
 def create_citekey(metadatum):
@@ -81,15 +85,27 @@ def create_citekey(metadatum):
 
     last_names = map(_get_last_name, metadatum.authors[:3])
     normalized_names = map('-'.join, last_names)
-    joined_names = '+'.join(normalized_names)
+    name_string = '+'.join(normalized_names)
+    if len(metadatum.authors) > 3:
+        name_string += '+'
     year = metadatum.year % 100
     first_word_of_title = _get_title_start(metadatum.title)
-    citekey = _propose_citekey(
-        joined_names, year, collision_count, first_word_of_title
+
+    proposed_citekey = _apply_citekey_format(
+        name_string, year, first_word_of_title
     )
 
-    # TODO: Handle collisions.  Note that this is a little complicated because
-    # it's possible that there had already been a collision, in which case the
-    # original citekey got renamed to "nameYYa-title", leaving the original
-    # free.
-    return citekey
+    metadata = zoia.metadata.load_metadata()
+
+    # TODO: Add a note to the README that this behavior is currently resolving
+    # collisions by the order the reference was added to zoia, not by the
+    # original date or title.  (This should be user-configurable.)
+    if proposed_citekey in metadata:
+        for identifier in _generate_identifiers():
+            proposed_citekey = _apply_citekey_format(
+                name_string, year, first_word_of_title, identifier
+            )
+            if proposed_citekey not in metadata:
+                break
+
+    return proposed_citekey
