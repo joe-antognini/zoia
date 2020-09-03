@@ -94,7 +94,9 @@ class TestCreateCitekey(unittest.TestCase):
         self.assertEqual(citekey, 'doe99-foo')
 
     @unittest.mock.patch('zoia.citekey.zoia.metadata.load_metadata')
-    def test_create_citekey_one_author_with_collision(self, mock_load_metadata):
+    def test_create_citekey_one_author_with_collision(
+        self, mock_load_metadata
+    ):
         metadatum = zoia.metadata.Metadatum(
             title='The Foo Bar', authors=['John Doe'], year=1999
         )

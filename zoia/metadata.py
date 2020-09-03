@@ -16,6 +16,14 @@ class Metadatum:
     authors: List[str]
     year: int
 
+    @classmethod
+    def from_dict(cls, d):
+        return cls(
+            title=d['title'],
+            authors=d['authors'],
+            year=d['year'],
+        )
+
 
 def load_metadata():
     """Load the metadata for the library."""
@@ -78,3 +86,11 @@ def rename_key(old_key, new_key):
 
     metadata[new_key] = metadata.pop(old_key)
     _write_metadata(metadata)
+
+
+def get_arxiv_ids():
+    """Return a set of all existing arXiv identifiers."""
+    metadata = load_metadata()
+    return {
+        elem['arxiv_id'] for elem in metadata.values() if 'arxiv_id' in elem
+    }

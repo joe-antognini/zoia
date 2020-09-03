@@ -1,6 +1,8 @@
 # To-do list
 
+* [ ] Add tests for `zoia add`.
 * [ ] Write a class to represent an object's metadata.
+* [ ] Save first and last names separately.
 * [X] Get a split of first names and last names in author lists.
 * [X] Write the function to generate citekeys.
 * [X] Write `zoia init`
@@ -28,3 +30,4 @@
 * [ ] Write a web app.
 * [ ] `zoia export`
 * [ ] `zoia import`
+* [ ] Fix pytest timeout.

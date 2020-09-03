@@ -56,3 +56,28 @@ class TestMetadata(unittest.TestCase):
 
         with self.assertRaises(KeyError):
             zoia.metadata.rename_key('foo', 'baz')
+
+
+class TestMetadatum(unittest.TestCase):
+    def test_metadatum_from_dict(self):
+        d = {
+            'title': 'foo',
+            'authors': ['John Doe', 'Jane Roe'],
+            'year': 2001,
+        }
+        metadatum = zoia.metadata.Metadatum.from_dict(d)
+        self.assertEqual(metadatum.title, 'foo')
+        self.assertEqual(metadatum.authors, ['John Doe', 'Jane Roe'])
+        self.assertEqual(metadatum.year, 2001)
+
+
+class TestGetArxivIds(unittest.TestCase):
+    @unittest.mock.patch('zoia.metadata.load_metadata')
+    def test_get_arxiv_ids(self, mock_load_metadata):
+        mock_load_metadata.return_value = {
+            'doe09-foo': {'arxiv_id': '0901.0123'},
+            'smith10-bar': {'arxiv_id': '1002.1001'},
+        }
+
+        arxiv_ids = zoia.metadata.get_arxiv_ids()
+        self.assertEqual(arxiv_ids, {'0901.0123', '1002.1001'})

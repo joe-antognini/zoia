@@ -19,6 +19,7 @@ setup(
         'click>=7.1.2',
         'feedparser>=5.2.1',
         'pyyaml>=5.3.1',
+        'requests>=2.24.0',
     ],
     entry_points={
         'console_scripts':

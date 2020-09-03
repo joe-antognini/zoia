@@ -1,9 +1,7 @@
 """Add new documents to the library."""
 
-import json
 import os
 import sys
-from copy import copy
 from datetime import datetime
 from enum import Enum
 
@@ -22,6 +20,10 @@ class IdType(Enum):
 
 
 class ZoiaExternalApiException(Exception):
+    pass
+
+
+class ZoiaExistingItemException(Exception):
     pass
 
 
@@ -56,8 +58,8 @@ def _get_arxiv_metadata(identifier):
             raise ZoiaExternalApiException(
                 f'Identifier {identifier} not found'
             )
-            
-    except (KeyError, IndexError) as e:
+
+    except (KeyError, IndexError):
         raise ZoiaExternalApiException(f'Identifier {identifier} not found')
 
     publication_date = datetime.strptime(
@@ -72,21 +74,13 @@ def _get_arxiv_metadata(identifier):
     }
 
     try:
-        for elem in d['entries'][0]['links']:
+        for elem in parsed_response['entries'][0]['links']:
             if 'title' in 'elem' and elem['title'] == 'doi':
-                metadata['doi']= elem['href']
+                metadata['doi'] = elem['href']
     except KeyError:
         pass
 
     return metadata
-
-
-#def _get_arxiv_metadata(identifier):
-#    response = requests.get(
-#        'https://api.semanticscholar.org/v1/paper/arxiv:' + identifier
-#    )
-#    _validate_response(response, identifier)
-#    return json.loads(response.text)
 
 
 def _get_doi_metadata(doi):
@@ -106,16 +100,28 @@ def _get_doi_metadata(doi):
 
 
 def _add_arxiv_id(identifier):
-    # TODO: Check if identifier already exists in database.
-    metadata = _get_arxiv_metadata(identifier)
-    if 'doi' in metadata:
-        doi_metadata = _get_doi_metadata(metadata['doi'])
-        metadata = {**metadata, **doi_metadata}
-    zoia.metadata.append_metadata(metadata)
-    # TODO:
-    # 1. Create a citekey.
-    # 2. Create a directory.
-    # 3. Download a PDF.
+    if identifier in zoia.metadat.get_arxiv_identifiers():
+        raise ZoiaExistingItemException(
+            f'arXiv paper {identifier} already exists.'
+        )
+
+    arxiv_metadata = _get_arxiv_metadata(identifier)
+    if 'doi' in arxiv_metadata:
+        arxiv_metadata.update(_get_doi_metadata(arxiv_metadata['doi']))
+    zoia.metadata.append_metadata(arxiv_metadata)
+
+    metadatum = zoia.metadata.Metadatum(
+        authors=arxiv_metadata['authors'],
+        title=arxiv_metadata['title'],
+        year=arxiv_metadata['year'],
+    )
+    citekey = zoia.citekey.create_citekey(metadatum)
+    paper_dir = os.path.join(zoia.config.get_library_root(), citekey)
+    os.mkdir(paper_dir)
+
+    pdf = requests.get(f'https://arxiv.org/pdf/{identifier}.pdf')
+    with open(os.path.join(paper_dir, 'document.pdf'), 'wb') as fp:
+        fp.write(pdf.content)
 
 
 @click.command()
