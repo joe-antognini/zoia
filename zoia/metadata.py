@@ -12,7 +12,6 @@ from zoia.config import ZOIA_METADATA_FILENAME
 @dataclass
 class Metadatum:
     title: str
-    # TODO: Split out first and last names.
     authors: List[str]
     year: int
 

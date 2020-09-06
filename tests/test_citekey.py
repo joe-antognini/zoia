@@ -7,26 +7,6 @@ import zoia.metadata
 
 
 class TestHelpers(unittest.TestCase):
-    def test__strip_diacritics(self):
-        self.assertEqual(zoia.citekey._strip_diacritics('foo'), 'foo')
-        self.assertEqual(zoia.citekey._strip_diacritics('Foo'), 'Foo')
-        self.assertEqual(zoia.citekey._strip_diacritics('Fóò'), 'Foo')
-
-    def test__normalize_string(self):
-        self.assertEqual(zoia.citekey._normalize_string('foo'), 'foo')
-        self.assertEqual(zoia.citekey._normalize_string('Foo'), 'foo')
-        self.assertEqual(zoia.citekey._normalize_string('Fóò'), 'foo')
-
-    def test__get_last_name(self):
-        self.assertEqual(zoia.citekey._get_last_name('Doe'), ['Doe'])
-        self.assertEqual(zoia.citekey._get_last_name('John Doe'), ['Doe'])
-        self.assertEqual(
-            zoia.citekey._get_last_name('John van Doe'), ['van', 'Doe']
-        )
-        self.assertEqual(
-            zoia.citekey._get_last_name('John Q. Public'), ['Public']
-        )
-
     def test__get_title_start(self):
         self.assertEqual(
             zoia.citekey._get_title_start(
@@ -86,7 +66,7 @@ class TestCreateCitekey(unittest.TestCase):
     @unittest.mock.patch('zoia.citekey.zoia.metadata.load_metadata')
     def test_create_citekey_one_author_no_collision(self, mock_load_metadata):
         metadatum = zoia.metadata.Metadatum(
-            title='The Foo Bar', authors=['John Doe'], year=1999
+            title='The Foo Bar', authors=[['John', 'Doe']], year=1999
         )
 
         mock_load_metadata.return_value = {'doe00-baz': None}
@@ -98,7 +78,7 @@ class TestCreateCitekey(unittest.TestCase):
         self, mock_load_metadata
     ):
         metadatum = zoia.metadata.Metadatum(
-            title='The Foo Bar', authors=['John Doe'], year=1999
+            title='The Foo Bar', authors=[['John', 'Doe']], year=1999
         )
 
         mock_load_metadata.return_value = {'doe99-foo': None}

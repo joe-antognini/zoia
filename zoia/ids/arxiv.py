@@ -84,5 +84,5 @@ def normalize(identifier):
 
     if identifier.lower().startswith('arxiv:'):
         identifier = identifier[len('arxiv:'):]
-    
+
     return identifier

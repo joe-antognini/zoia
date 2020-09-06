@@ -15,6 +15,7 @@ import zoia.citekey
 import zoia.config
 import zoia.ids.arxiv
 import zoia.metadata
+from zoia.normalization import split_name
 
 
 class IdType(Enum):
@@ -71,7 +72,7 @@ def _get_arxiv_metadata(identifier):
     )
     metadata = {
         'arxiv_id': identifier,
-        'authors': [elem['name'] for elem in entry['authors']],
+        'authors': [split_name(elem['name']) for elem in entry['authors']],
         'title': entry['title'].replace('\n ', ''),
         'year': publication_date.year,
         'month': publication_date.month,
@@ -100,6 +101,12 @@ def _get_doi_metadata(doi):
     if 'year' in entry:
         entry['year'] = int(entry['year'])
 
+    entry['authors'] = entry.pop('author')
+    entry['authors'] = [
+        list(map(lambda x: x.strip(), reversed(elem.split(','))))
+        for elem in entry['authors']
+    ]
+
     del entry['ID']
     return entry
 
@@ -110,13 +117,11 @@ def _add_arxiv_id(identifier):
             f'arXiv paper {identifier} already exists.'
         )
 
-    with Halo(text=f'Querying arXiv...', spinner='dots') as spinner:
+    with Halo(text='Querying arXiv...', spinner='dots'):
         arxiv_metadata = _get_arxiv_metadata(identifier)
 
     if 'doi' in arxiv_metadata:
-        with Halo(
-            text='Querying DOI information...', spinner='dots'
-        ) as spinner:
+        with Halo(text='Querying DOI information...', spinner='dots'):
             arxiv_metadata.update(_get_doi_metadata(arxiv_metadata['doi']))
 
     metadatum = zoia.metadata.Metadatum(
@@ -129,7 +134,7 @@ def _add_arxiv_id(identifier):
     os.mkdir(paper_dir)
 
     zoia.metadata.append_metadata(citekey, arxiv_metadata)
-    with Halo(text=f'Searching for a PDF...', spinner='dots') as spinner:
+    with Halo(text='Searching for a PDF...', spinner='dots'):
         pdf = requests.get(f'https://arxiv.org/pdf/{identifier}.pdf')
 
     if pdf.status_code == 200:

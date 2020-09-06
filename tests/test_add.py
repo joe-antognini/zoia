@@ -44,7 +44,7 @@ class TestGetArxivMetadata(unittest.TestCase):
         observed_metadata = zoia.add._get_arxiv_metadata('1601.00001')
         expected_metadata = {
             'arxiv_id': '1601.00001',
-            'authors': ['Michael Kilgour', 'Dvira Segal'],
+            'authors': [['Michael', 'Kilgour'], ['Dvira', 'Segal']],
             'title': (
                 'Inelastic effects in molecular transport junctions: The '
                 'probe technique at high bias'
@@ -74,7 +74,8 @@ class TestGetDoiMetadata(unittest.TestCase):
         entry = zoia.add._get_doi_metadata('10.3847/1538-3881/aa9e09')
         self.assertEqual(entry['year'], 2018)
         self.assertEqual(
-            entry['author'], ['Shallue, Christopher J.', 'Vanderburg, Andrew']
+            entry['authors'],
+            [['Christopher J.', 'Shallue'], ['Andrew', 'Vanderburg']],
         )
 
 
@@ -103,7 +104,7 @@ class TestAddArxivId(unittest.TestCase):
 
         mock_get_arxiv_metadata.return_value = {
             'arxiv_id': '1601.00001',
-            'authors': ['Michael Kilgour', 'Dvira Segal'],
+            'authors': [['Michael', 'Kilgour'], ['Dvira', 'Segal']],
             'title': (
                 'Inelastic effects in molecular transport junctions: The '
                 'probe technique at high bias'
@@ -119,7 +120,7 @@ class TestAddArxivId(unittest.TestCase):
                 'Inelastic effects in molecular transport junctions: The '
                 'probe technique at high bias'
             ),
-            'author': ['Kilgour, Michael', 'Segal, Dvira'],
+            'authors': [['Michael', 'Kilgour'], ['Dvira', 'Segal']],
             'pages': '124107',
             'number': '12',
             'volume': '144',

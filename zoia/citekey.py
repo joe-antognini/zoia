@@ -1,47 +1,15 @@
 """Functions to create a unique citekey."""
 
 import string
-import unicodedata
 
 import zoia.metadata
+import zoia.normalization
 
 # TODO: Add functionality for other citekey styles.
 
 # Ignore common words in the title when generating a citekey.
 # TODO: Expand this list.
 TITLE_WORD_BLACKLIST = {'a', 'an', 'are', 'is', 'of', 'on', 'the'}
-
-
-def _strip_diacritics(s):
-    """Remove diacritics from the string."""
-    return ''.join(
-        [
-            char for char in unicodedata.normalize('NFD', s)
-            if unicodedata.category(char) != 'Mn'
-        ]
-    )
-
-
-def _normalize_string(s):
-    """Remove diacritics and return a lower-case version of the string."""
-    s = _strip_diacritics(s)
-    return s.lower()
-
-
-def _get_last_name(name):
-    """Attempt to determine the last name."""
-    names = name.split()
-
-    last_names = []
-    if len(names) == 1:
-        last_names.append(name)
-    else:
-        for elem in reversed(names[1:]):
-            if '.' in elem:
-                break
-            else:
-                last_names.append(elem)
-    return last_names[::-1]
 
 
 def _get_title_start(title):
@@ -63,7 +31,7 @@ def _apply_citekey_format(
         f'{name_string}{year}'
         f'{identifier if identifier else ""}-{first_word_of_title}'
     )
-    return _normalize_string(citekey)
+    return zoia.normalization.normalize_string(citekey)
 
 
 def _generate_identifiers():
@@ -83,7 +51,7 @@ def create_citekey(metadatum):
     """Create a unique citekey for the object."""
     # TODO: Expand this docstring.
 
-    last_names = map(_get_last_name, metadatum.authors[:3])
+    last_names = [elem[1].split() for elem in metadatum.authors[:3]]
     normalized_names = map('-'.join, last_names)
     name_string = '+'.join(normalized_names)
     if len(metadatum.authors) > 3:
