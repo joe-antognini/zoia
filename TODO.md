@@ -1,17 +1,16 @@
 # To-do list
 
-* [ ] Add tests for `zoia add`.
+* [ ] Query Semantic Scholar instead of DOI?
+    * [ ] Handle 504 error from DOI better?
+    * [ ] Make a way to update an existing record.
+* [ ] Make a singleton class to handle metadata operations.
 * [ ] Write a class to represent an object's metadata.
 * [ ] Add a "no download" flag to `zoia add`
 * [ ] Save first and last names separately.
 * [ ] Access PDF and DOI simultaneously.
-* [ ] Add a spinner when running `zoia add`.
-* [X] Get a split of first names and last names in author lists.
-* [X] Write the function to generate citekeys.
-* [X] Write `zoia init`
 * [.] Write `zoia add`
     * [ ] From DOI
-    * [o] From arXiv ID
+    * [X] From arXiv ID
     * [ ] From ISBN
     * [ ] From BibID
 * [ ] Write `zoia open`

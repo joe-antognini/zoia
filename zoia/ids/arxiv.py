@@ -69,6 +69,7 @@ def _is_valid_new_style_arxiv_id(identifier):
 def is_valid_arxiv_id(identifier):
     """Determine whether or not the given identifier is a valid arXiv ID."""
 
+    identifier = normalize(identifier)
     if identifier.lower().startswith('arxiv:'):
         identifier = identifier[len('arxiv:'):]
 
@@ -76,3 +77,12 @@ def is_valid_arxiv_id(identifier):
         _is_valid_old_style_arxiv_id(identifier) or
         _is_valid_new_style_arxiv_id(identifier)
     )
+
+
+def normalize(identifier):
+    """Remove the initial 'arxiv:' if it exists."""
+
+    if identifier.lower().startswith('arxiv:'):
+        identifier = identifier[len('arxiv:'):]
+    
+    return identifier

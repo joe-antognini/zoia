@@ -9,6 +9,7 @@ import bibtexparser
 import click
 import feedparser
 import requests
+from halo import Halo
 
 import zoia.citekey
 import zoia.config
@@ -109,10 +110,14 @@ def _add_arxiv_id(identifier):
             f'arXiv paper {identifier} already exists.'
         )
 
-    arxiv_metadata = _get_arxiv_metadata(identifier)
+    with Halo(text=f'Querying arXiv...', spinner='dots') as spinner:
+        arxiv_metadata = _get_arxiv_metadata(identifier)
+
     if 'doi' in arxiv_metadata:
-        arxiv_metadata.update(_get_doi_metadata(arxiv_metadata['doi']))
-    zoia.metadata.append_metadata(arxiv_metadata)
+        with Halo(
+            text='Querying DOI information...', spinner='dots'
+        ) as spinner:
+            arxiv_metadata.update(_get_doi_metadata(arxiv_metadata['doi']))
 
     metadatum = zoia.metadata.Metadatum(
         authors=arxiv_metadata['authors'],
@@ -123,16 +128,24 @@ def _add_arxiv_id(identifier):
     paper_dir = os.path.join(zoia.config.get_library_root(), citekey)
     os.mkdir(paper_dir)
 
-    pdf = requests.get(f'https://arxiv.org/pdf/{identifier}.pdf')
-    with open(os.path.join(paper_dir, 'document.pdf'), 'wb') as fp:
-        fp.write(pdf.content)
+    zoia.metadata.append_metadata(citekey, arxiv_metadata)
+    with Halo(text=f'Searching for a PDF...', spinner='dots') as spinner:
+        pdf = requests.get(f'https://arxiv.org/pdf/{identifier}.pdf')
+
+    if pdf.status_code == 200:
+        with open(os.path.join(paper_dir, 'document.pdf'), 'wb') as fp:
+            fp.write(pdf.content)
+    else:
+        click.secho('Was unable to fetch a PDF', fg='yellow')
+
+    return citekey
 
 
 @click.command()
 @click.argument('identifier', required=True)
 @click.option('--citekey', type=str, help='Specify the BibTex citation key.')
 def add(identifier, citekey):
-    is_arxiv = zoia.arxiv.is_valid_arxiv_id(identifier)
+    is_arxiv = zoia.ids.arxiv.is_valid_arxiv_id(identifier)
     if not is_arxiv and identifier.lower().startswith('arxiv:'):
         click.secho(
             'It looks like you\'re trying to provide an arXiv ID, but the ID '
@@ -142,10 +155,12 @@ def add(identifier, citekey):
         sys.exit(1)
 
     if is_arxiv:
+        identifier = zoia.ids.arxiv.normalize(identifier)
         try:
             _add_arxiv_id(identifier)
+            click.secho(f'Successfully added {identifier}.', fg='blue')
         except ZoiaExternalApiException as e:
-            click.secho(f'ERROR: {str(e)}', fg='red')
+            click.secho(f'{str(e)}', fg='red')
             sys.exit(1)
 
     else:

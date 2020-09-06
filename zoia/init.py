@@ -69,6 +69,7 @@ def init(directory):
             'Please provide a directory for your library',
             default=_get_default_directory(),
         )
+        directory = os.path.expanduser(directory)
 
     os.makedirs(directory, exist_ok=True)
     set_library_root(directory)

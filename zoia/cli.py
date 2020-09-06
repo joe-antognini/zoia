@@ -2,6 +2,7 @@
 
 import click
 
+from zoia.add import add
 from zoia.init import init
 
 
@@ -10,6 +11,7 @@ def zoia():
     """The main entry point into `zoia`."""
 
 
+zoia.add_command(add)
 zoia.add_command(init)
 
 if __name__ == '__main__':

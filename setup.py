@@ -18,6 +18,7 @@ setup(
     install_requires=[
         'click>=7.1.2',
         'feedparser>=5.2.1',
+        'halo>=0.0.30',
         'pyyaml>=5.3.1',
         'requests>=2.24.0',
     ],
