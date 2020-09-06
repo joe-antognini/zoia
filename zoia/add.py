@@ -10,7 +10,10 @@ import click
 import feedparser
 import requests
 
+import zoia.citekey
+import zoia.config
 import zoia.ids.arxiv
+import zoia.metadata
 
 
 class IdType(Enum):
@@ -63,22 +66,18 @@ def _get_arxiv_metadata(identifier):
         raise ZoiaExternalApiException(f'Identifier {identifier} not found')
 
     publication_date = datetime.strptime(
-        entry['published'], '%Y-%m-%dT%H:%M%SZ'
+        entry['published'], '%Y-%m-%dT%H:%M:%SZ'
     )
     metadata = {
         'arxiv_id': identifier,
         'authors': [elem['name'] for elem in entry['authors']],
-        'title': entry['title'],
+        'title': entry['title'].replace('\n ', ''),
         'year': publication_date.year,
         'month': publication_date.month,
     }
 
-    try:
-        for elem in parsed_response['entries'][0]['links']:
-            if 'title' in 'elem' and elem['title'] == 'doi':
-                metadata['doi'] = elem['href']
-    except KeyError:
-        pass
+    if 'arxiv_doi' in entry:
+        metadata['doi'] = entry['arxiv_doi']
 
     return metadata
 
@@ -89,18 +88,23 @@ def _get_doi_metadata(doi):
         headers={'Accept': 'application/x-bibtex'},
     )
     _validate_response(response, doi)
-    parser = bibtexparser.BibTexParser(
+    parser = bibtexparser.bparser.BibTexParser(
         customization=bibtexparser.customization.author
     )
     bib_db = bibtexparser.loads(response.text, parser=parser)
     entry = bib_db.entries[-1]
-    entry['type'] = entry.pop('ENTRYTYPE')
+    if 'type' in entry:
+        entry['type'] = entry.pop('ENTRYTYPE')
+
+    if 'year' in entry:
+        entry['year'] = int(entry['year'])
+
     del entry['ID']
     return entry
 
 
 def _add_arxiv_id(identifier):
-    if identifier in zoia.metadat.get_arxiv_identifiers():
+    if identifier in zoia.metadata.get_arxiv_ids():
         raise ZoiaExistingItemException(
             f'arXiv paper {identifier} already exists.'
         )
@@ -138,7 +142,12 @@ def add(identifier, citekey):
         sys.exit(1)
 
     if is_arxiv:
-        _add_arxiv_id(identifier)
+        try:
+            _add_arxiv_id(identifier)
+        except ZoiaExternalApiException as e:
+            click.secho(f'ERROR: {str(e)}', fg='red')
+            sys.exit(1)
+
     else:
         click.secho(f'Unable to interpret identifier {identifier}.', rg='ref')
         sys.exit(1)

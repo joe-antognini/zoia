@@ -2,7 +2,10 @@
 
 * [ ] Add tests for `zoia add`.
 * [ ] Write a class to represent an object's metadata.
+* [ ] Add a "no download" flag to `zoia add`
 * [ ] Save first and last names separately.
+* [ ] Access PDF and DOI simultaneously.
+* [ ] Add a spinner when running `zoia add`.
 * [X] Get a split of first names and last names in author lists.
 * [X] Write the function to generate citekeys.
 * [X] Write `zoia init`
