@@ -84,3 +84,29 @@ class TestCreateCitekey(unittest.TestCase):
         mock_load_metadata.return_value = {'doe99-foo': None}
         citekey = zoia.citekey.create_citekey(metadatum)
         self.assertEqual(citekey, 'doe99b-foo')
+
+    @unittest.mock.patch('zoia.citekey.zoia.metadata.load_metadata')
+    def test_create_citekey_two_authors_no_collision(self, mock_load_metadata):
+        metadatum = zoia.metadata.Metadatum(
+            title='The Foo Bar',
+            authors=[['John', 'Doe'], ['Jane', 'Roe']],
+            year=1999,
+        )
+
+        mock_load_metadata.return_value = {'doe00-baz': None}
+        citekey = zoia.citekey.create_citekey(metadatum)
+        self.assertEqual(citekey, 'doe+roe99-foo')
+
+    @unittest.mock.patch('zoia.citekey.zoia.metadata.load_metadata')
+    def test_create_citekey_three_authors_no_collision(
+        self, mock_load_metadata
+    ):
+        metadatum = zoia.metadata.Metadatum(
+            title='The Foo Bar',
+            authors=[['John', 'Doe'], ['Jane', 'Roe'], ['Joe', 'Bloggs']],
+            year=1999,
+        )
+
+        mock_load_metadata.return_value = {'doe00-baz': None}
+        citekey = zoia.citekey.create_citekey(metadatum)
+        self.assertEqual(citekey, 'doe+99-foo')

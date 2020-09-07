@@ -51,10 +51,13 @@ def create_citekey(metadatum):
     """Create a unique citekey for the object."""
     # TODO: Expand this docstring.
 
-    last_names = [elem[1].split() for elem in metadatum.authors[:3]]
+    n_citekey_authors = 2 if len(metadatum.authors) == 2 else 1
+    last_names = [
+        elem[1].split() for elem in metadatum.authors[:n_citekey_authors]
+    ]
     normalized_names = map('-'.join, last_names)
     name_string = '+'.join(normalized_names)
-    if len(metadatum.authors) > 3:
+    if len(metadatum.authors) > 2:
         name_string += '+'
     year = metadatum.year % 100
     first_word_of_title = _get_title_start(metadatum.title)
