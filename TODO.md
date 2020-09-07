@@ -6,8 +6,6 @@
 * [ ] Make a singleton class to handle metadata operations.
 * [ ] Write a class to represent an object's metadata.
 * [ ] Add a "no download" flag to `zoia add`
-* [ ] Save first and last names separately.
-* [ ] Access PDF and DOI simultaneously.
 * [.] Write `zoia add`
     * [ ] From DOI
     * [X] From arXiv ID
@@ -33,3 +31,7 @@
 * [ ] `zoia export`
 * [ ] `zoia import`
 * [ ] Fix pytest timeout.
+* [ ] Add a config option that lets you move vs. copy a PDF if you're adding a
+      PDF manually.
+* [ ] Add a config option to open PDFs with native PDF viewer or in a web
+      browser.

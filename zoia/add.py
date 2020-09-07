@@ -4,6 +4,8 @@ import os
 import sys
 from datetime import datetime
 from enum import Enum
+from multiprocessing.dummy import Process as ThreadProcess
+from multiprocessing.dummy import Queue as ThreadQueue
 
 import bibtexparser
 import click
@@ -111,11 +113,28 @@ def _get_doi_metadata(doi):
     return entry
 
 
-def _add_arxiv_id(identifier):
+def _download_arxiv_pdf(identifier):
+    """Download the PDF associated with an arXiv identifier."""
+    pdf = requests.get()
+    return pdf
+
+
+def _add_arxiv_id(identifier, citekey=None):
     if identifier in zoia.metadata.get_arxiv_ids():
         raise ZoiaExistingItemException(
             f'arXiv paper {identifier} already exists.'
         )
+    if citekey in zoia.metadata.load_metadata():
+        raise ZoiaExistingItemException(f'Citekey {citekey} already exists.')
+
+    # Downloading the PDF can take a while, so start it early in a separate
+    # thread.
+    pdf_queue = ThreadQueue()
+    pdf_process = ThreadProcess(
+        target=lambda q, x: q.put(requests.get(x)),
+        args=(pdf_queue, f'https://arxiv.org/pdf/{identifier}.pdf'),
+    )
+    pdf_process.start()
 
     with Halo(text='Querying arXiv...', spinner='dots'):
         arxiv_metadata = _get_arxiv_metadata(identifier)
@@ -129,13 +148,15 @@ def _add_arxiv_id(identifier):
         title=arxiv_metadata['title'],
         year=arxiv_metadata['year'],
     )
-    citekey = zoia.citekey.create_citekey(metadatum)
+    if citekey is None:
+        citekey = zoia.citekey.create_citekey(metadatum)
     paper_dir = os.path.join(zoia.config.get_library_root(), citekey)
     os.mkdir(paper_dir)
 
     zoia.metadata.append_metadata(citekey, arxiv_metadata)
-    with Halo(text='Searching for a PDF...', spinner='dots'):
-        pdf = requests.get(f'https://arxiv.org/pdf/{identifier}.pdf')
+    with Halo(text='Downloading PDF...', spinner='dots'):
+        pdf = pdf_queue.get()
+        pdf_process.join()
 
     if pdf.status_code == 200:
         with open(os.path.join(paper_dir, 'document.pdf'), 'wb') as fp:
@@ -148,7 +169,12 @@ def _add_arxiv_id(identifier):
 
 @click.command()
 @click.argument('identifier', required=True)
-@click.option('--citekey', type=str, help='Specify the BibTex citation key.')
+@click.option(
+    '--citekey',
+    type=str,
+    default=None,
+    help='Specify the BibTex citation key.',
+)
 def add(identifier, citekey):
     is_arxiv = zoia.ids.arxiv.is_valid_arxiv_id(identifier)
     if not is_arxiv and identifier.lower().startswith('arxiv:'):
@@ -162,7 +188,8 @@ def add(identifier, citekey):
     if is_arxiv:
         identifier = zoia.ids.arxiv.normalize(identifier)
         try:
-            _add_arxiv_id(identifier)
+            _add_arxiv_id(identifier, citekey)
+            # TODO: Add more information to the response message.
             click.secho(f'Successfully added {identifier}.', fg='blue')
         except ZoiaExternalApiException as e:
             click.secho(f'{str(e)}', fg='red')
