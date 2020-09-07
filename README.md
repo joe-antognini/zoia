@@ -2,6 +2,14 @@
 
 `zoia` is a utility to organize your library of academic papers.
 
+## Installation
+
+You can install `zoia` by running:
+
+```sh
+pip install zoia
+```
+
 ## Organization
 
 `zoia` uses a simple, flat layout to organize data.  Every paper is referenced
