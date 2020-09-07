@@ -43,21 +43,6 @@ words like "the", "a", "on", etc.).
 | Einstein, A., Podolsky, B., and Rosen, N. | Can quantum-mechanical description of physical reality be considered complete? | 1935 | einstein+podolsky+rosen35-can |
 | Abbott, B. P., et al.                     | Observation of Gravitational Waves from a Binary Black Hole Merger             | 2016 | abbott+16-obseravtion         |
 
-#### Two-author style
-
-The two-author style is like the `zoia`'s default style, but will only
-include at most two authors in the citation key.  (Any additional authors will
-be represented as a `+`.)
-
-##### Examples
-
-| Author(s)                                 | Title                                                                          | Year | Citation key                  |
-| --------                                  | -----                                                                          | ---- | ------------                  |
-| Einstein, A.                              | On the electrodynamics of moving bodies                                        | 1905 | einstein05-electrodynamics    |
-| Einstein, A., and Rosen, N.               | The particle problem in the general theory of relativity                       | 1935 | einstein+rosen35-particle     |
-| Einstein, A., Podolsky, B., and Rosen, N. | Can quantum-mechanical description of physical reality be considered complete? | 1935 | einstein+podolsky+35-can |
-| Abbott, B. P., et al.                     | Observation of Gravitational Waves from a Binary Black Hole Merger             | 2016 | abbott+16-obseravtion         |
-
 ### Collisions
 
 Inevitably you will one day try to add two different papers which have the same
@@ -138,3 +123,9 @@ running:
 ```
 zoia note <citekey>
 ```
+
+## About the name
+
+`zoia` is named in honor of the librarian [Zoia
+Horn](https://en.wikipedia.org/wiki/Zoia_Horn) who spent her life fighting for
+intellectual and academic freedom.
