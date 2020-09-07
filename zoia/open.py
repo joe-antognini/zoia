@@ -1,8 +1,6 @@
 """Open a document in the library."""
 
 import os
-import platform
-import subprocess
 import sys
 
 import click
@@ -17,12 +15,7 @@ def _open(citekey):
     if not os.path.isfile(document_path):
         raise FileNotFoundError(f'No document found for citekey {citekey}.')
 
-    if platform.system() == 'Darwin':
-        subprocess.call(('open', document_path))
-    elif platform.system() == 'Windows':
-        os.startfile(document_path)
-    else:
-        subprocess.call(('xdg-open', document_path))
+    click.launch(document_path)
 
 
 @click.command(name='open')

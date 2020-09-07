@@ -1,18 +1,19 @@
-import os
 import tempfile
 import unittest
 import unittest.mock
 from pathlib import Path
 
+from click.testing import CliRunner
+
 from .context import zoia
-import zoia.open
+import zoia.cli
 
 
 class TestOpen(unittest.TestCase):
     @unittest.mock.patch('zoia.open.zoia.config.get_library_root')
-    @unittest.mock.patch('zoia.open.platform.system')
-    @unittest.mock.patch('zoia.open.subprocess.call')
-    def test_open(self, mock_call, mock_system, mock_get_library_root):
+    @unittest.mock.patch('zoia.open.click.launch')
+    def test_open(self, mock_launch, mock_get_library_root):
+        runner = CliRunner()
         with tempfile.TemporaryDirectory() as tmpdir:
             mock_get_library_root.return_value = tmpdir
             doc_dir = Path(tmpdir) / 'bar01-baz'
@@ -20,9 +21,5 @@ class TestOpen(unittest.TestCase):
             doc_path = doc_dir / 'document.pdf'
             doc_path.touch()
 
-            mock_system.return_value = 'Linux'
-
-            zoia.open._open('bar01-baz')
-            mock_call.assert_called_once_with(
-                ('xdg-open', os.path.join(tmpdir, 'bar01-baz/document.pdf'))
-            )
+            result = runner.invoke(zoia.cli.zoia, ['open', 'bar01-baz'])
+            self.assertEqual(result.exit_code, 0)
