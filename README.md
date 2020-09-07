@@ -1,49 +1,40 @@
-# `zoia`
+# Zoia
 
 `zoia` is a utility to organize your library of academic papers.
 
-
 ## Organization
 
-`zoia` uses a simple, flat layout to organize data.  Every paper is
-referenced by a unique citation key.  (This would be the same key that you
-would reference with `citep` or `citet` in LaTeX.)  Bibliographic data is
-stored in a file called `.metadata.json`.
+`zoia` uses a simple, flat layout to organize data.  Every paper is referenced
+by a unique citation key (typically shortened to "citekey").  This would be
+the same key that you would reference with `citep` or `citet` in LaTeX.
+Bibliographic data is stored in a file called `.metadata.json`.
 
 Each paper also gets its own subdirectory in the root directory.  Within each
 subdirectory the document (if it exists) is stored as `document.pdf`.  Any
 notes associated with the document are stored as `notes.md`.  However, `zoia`
 imposes no additional structure on the layout.  If you would like to add
-additional files for a paper (e.g., data or code), you are free to do so.
+additional files for a paper (e.g., supplementary data, code, or text), you are
+free to do so.
 
 A sample directory structure might look like this:
 
 ```
 my_library
-         ├── einstein05electrodynamics
+         ├── einstein05-electrodynamics
          │   ├── document.pdf
          │   └── notes.md
          └── .metadata.json
 ```
 
-## Citation key styles
+## Citation key style
 
-`zoia` allows you to choose from several different formats to automatically
-generate citation keys.
+`zoia` generates citekeys by taking the last names of the first three authors
+on the paper and joining them by `+`, (with a trailing `+` if there are more
+than three authors), followed by the last two digits of the publication year,
+followed by a hyphen, followed by the first word of the title (excluding common
+words like "the", "a", "on", etc.).  
 
-### `zoia` styles
-
-#### Default three-author style
-
-The default style in `zoia` is to use the last name of up to three authors
-separated by `+`, (with a trailing `+` if there are more than three authors),
-followed by the last two digits of the publication year, followed by a hyphen,
-followed by the first word of the title (excluding common words like "the",
-"a", "on", etc.).  This style is the least likely to produce collisions but is
-also harder to remember.  (Though `zoia`'s search functionality can help you
-to find the paper's citation key.)
-
-##### Examples
+### Examples
 
 | Author(s)                                 | Title                                                                          | Year | Citation key                  |
 | --------                                  | -----                                                                          | ---- | ------------                  |
@@ -67,68 +58,83 @@ be represented as a `+`.)
 | Einstein, A., Podolsky, B., and Rosen, N. | Can quantum-mechanical description of physical reality be considered complete? | 1935 | einstein+podolsky+35-can |
 | Abbott, B. P., et al.                     | Observation of Gravitational Waves from a Binary Black Hole Merger             | 2016 | abbott+16-obseravtion         |
 
-#### Two-author abbreviated style
-
-The two-author abbreviated style will provide up to two authors in the citation
-key, but if there are three or more authors only the first will be included,
-followed by a `+`.
-
-#### No title
-
-The above styles can be modified by not including the first word of the title
-in the citation key.
-
-### Other citation key styles
-
-#### Google Scholar style
-
-Google Scholar generates a citation key by using the last name of the first
-author, followed by the year of publication, followed by the first word of the
-title (excluding common words).
-
-#### `pubs` style
-
-`[pubs](https://github.com/pubs/pubs)` generates a citation key by using the
-capitalized last name of the first author, followed by an underscore, followed
-by the year.
-
 ### Collisions
 
 Inevitably you will one day try to add two different papers which have the same
 auto-generated citation keys.  The default style makes this rare, but does not
-guarantee that it will never happen.  When it does, `zoia` will try to figure
-out which paper was published first.  It will then append an `a` to the year in
-the citation key of the earlier paper and a `b` to the year of the second
-paper.  If additional papers would have produced collisions then `zoia` will
-continue with a `c`, etc., trying to maintain chronological order.  If `zoia`
-cannot determine the order of publication it will order the keys in the order
-that the references were added.
+guarantee that it will never happen.  When it does, `zoia` will add the
+character `b` after the year.  For example, suppose a less well known physicist
+named Egbert Einstein had written another, somewhat less revolutionary, paper
+in 1905 called "On the electrodynamics of stationary bodies" and you tried to
+add it, it would get a citekey of `einstein05b-electrodynamics`.  If the
+citekey with the `b` already exists, `zoia` will try adding a `c`, and then a
+`d`, etc. all the way up to `z`.  If that's still not good enough it will
+continue with `aa`, `ab`, etc., though for your sake pray that things never
+come to that.
+
+Note that the first paper will retain its original citekey --- it won't get an
+`a` added to it.  This is because you may have been using that old citekey in
+your papers.  Changing the citekey would break that link.
 
 ## Configuration
 
-`zoia` keeps a configuration file in `~/.local/share/zoia/conf.ini`.
-(TODO: What is it on OSx systems?)  Here you can set various things like the
-root directory of the library and the citation key style.
+`zoia` follows the XDG standard and stores its configuration data in
+`$XDG_CONFIG_HOME/zoia` if the `XDG_CONFIG_HOME` environment variable is set.
+If it is not set it uses the standard default of `$HOME/.config/zoia`.
+Whatever the directory, `zoia` keeps its configuration data in file called
+`config.yaml`.
 
 ## Usage
 
-`zoia init`
+### Initialization
 
-`zoia add`
+After you have installed `zoia` you can initialize your library by running:
 
-`zoia find`
+```sh
+zoia init [directory]
+```
 
-`zoia open`
+This will tell `zoia` that your library is going to be stored in the provided
+directory.  (Note that this directory must be empty.)  If you don't provide a
+directory, `zoia` will store your library in your current working directory if
+it is empty.  If it isn't empty, it will try creating a subdirectory named
+`zoia` and will store your library there (assuming that that subdirectory
+doesn't already exist).
 
-`zoia note`
+### Adding a paper
 
-`zoia tag`
+Once you have initialized your library, you can add papers to it using their
+arXiv ID:
 
-`zoia export`
+```sh
+zoia add 1001.0001
+```
 
-`zoia import`
+It's also fine if you have the prefix `arxiv:1001.0001`.
 
-## Limitations
+`zoia` will add the paper's metadata to the `.metadata.json` file and download
+the PDF.
 
-`zoia` will be tested on Ubuntu and OS X.  No guarantees will be made about its
-compatibility with Windows.
+In the future `zoia` will support adding papers by their DOI, books by their
+ISBN, and PDFs directly.
+
+### Opening a paper
+
+You can open the PDF of a paper in your library from its citekey by running:
+
+```sh
+zoia open <citekey>
+```
+
+In the future it will be possible to also open the PDF based on the arXiv ID,
+DOI, or ISBN.
+
+### Taking notes on a paper
+
+`zoia` keeps your notes for a paper in a Markdown file called `notes.md` in
+that paper's subdirectory.  You can edit that file in your default editor by
+running:
+
+```
+zoia note <citekey>
+```

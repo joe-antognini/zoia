@@ -1,5 +1,8 @@
 # To-do list
 
+* [ ] Add header information to `zoia note`.
+* [ ] Write a way to print out paper information.
+* [ ] Add another citekey style.
 * [ ] Query Semantic Scholar instead of DOI?
     * [ ] Handle 504 error from DOI better?
     * [ ] Make a way to update an existing record.
@@ -11,12 +14,14 @@
     * [X] From arXiv ID
     * [ ] From ISBN
     * [ ] From BibID
-* [ ] Write `zoia open`
+* [X] Write `zoia open`
 * [ ] Write `zoia note`
     * [ ] Add authors, title, etc. if not already there.
     * [ ] Update the metadata if the tags change.
 * [ ] Write `zoia tag`
 * [ ] Write `zoia find`
+* [ ] Write `zoia rm`
+* [ ] Write `zoia config` to set configuration
 * [ ] Add more config options
     * [ ] JSON/YAML indentation
     * [ ] How to store metadata
@@ -35,3 +40,5 @@
       PDF manually.
 * [ ] Add a config option to open PDFs with native PDF viewer or in a web
       browser.
+* [ ] Eliminate `zoia init`?  Should be possible to auto-detect if `zoia` has
+      been initialized and run initalization if it hasn't happened.
