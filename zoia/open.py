@@ -28,6 +28,7 @@ def _open(citekey):
 @click.command(name='open')
 @click.argument('citekey', required=True)
 def open_(citekey):
+    """Open a document in the library."""
     try:
         _open(citekey)
     except FileNotFoundError as e:
