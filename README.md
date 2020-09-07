@@ -111,8 +111,8 @@ You can open the PDF of a paper in your library from its citekey by running:
 zoia open <citekey>
 ```
 
-In the future it will be possible to also open the PDF based on the arXiv ID,
-DOI, or ISBN.
+This will open the PDF using your default PDF viewer.  In the future it will be
+possible to also open the PDF based on the arXiv ID, DOI, or ISBN.
 
 ### Taking notes on a paper
 
