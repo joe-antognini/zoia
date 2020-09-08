@@ -2,10 +2,8 @@
 
 * [ ] Add header information to `zoia note`.
 * [ ] Write a way to print out paper information.
-* [ ] Add another citekey style.
-* [ ] Query Semantic Scholar instead of DOI?
-    * [ ] Handle 504 error from DOI better?
-    * [ ] Make a way to update an existing record.
+* [ ] Handle ISBNs in `zoia add`
+* [ ] Handle DOIs in `zoia add`
 * [ ] Make a singleton class to handle metadata operations.
 * [ ] Write a class to represent an object's metadata.
 * [ ] Add a "no download" flag to `zoia add`
@@ -42,3 +40,4 @@
       browser.
 * [ ] Eliminate `zoia init`?  Should be possible to auto-detect if `zoia` has
       been initialized and run initalization if it hasn't happened.
+* [ ] Add more citekey styles.
