@@ -7,7 +7,8 @@ def strip_diacritics(s):
     """Remove diacritics from the string."""
     return ''.join(
         [
-            char for char in unicodedata.normalize('NFD', s)
+            char
+            for char in unicodedata.normalize('NFD', s)
             if unicodedata.category(char) != 'Mn'
         ]
     )
@@ -33,5 +34,5 @@ def split_name(name):
             else:
                 last_names.append(elem)
     last_name = ' '.join(reversed(last_names))
-    first_name = ' '.join(names[:len(names) - len(last_names)])
+    first_name = ' '.join(names[: len(names) - len(last_names)])
     return [first_name, last_name]
