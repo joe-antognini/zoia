@@ -79,5 +79,5 @@ def init(directory):
 
     click.secho(
         f'Your zoia library was successfully initialized at {directory}!',
-        fg='blue'
+        fg='blue',
     )
