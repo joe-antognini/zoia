@@ -1,5 +1,6 @@
 # To-do list
 
+* [ ] Use versioneer?
 * [ ] Add header information to `zoia note`.
 * [ ] Write a way to print out paper information.
 * [ ] Handle ISBNs in `zoia add`
