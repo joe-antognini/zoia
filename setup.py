@@ -7,7 +7,7 @@ with open('README.md') as fp:
 
 setuptools.setup(
     name='zoia',
-    version='0.1.1',
+    version='0.1.2',
     description='Command line tool to manage references.',
     long_description=long_description,
     long_description_content_type='text/markdown',
