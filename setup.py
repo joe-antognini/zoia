@@ -17,6 +17,7 @@ setup(
     license='MIT',
     packages=['zoia'],
     install_requires=[
+        'bibtexparser>=1.2.0',
         'click>=7.1.2',
         'feedparser>=5.2.1',
         'halo>=0.0.30',
