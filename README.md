@@ -36,9 +36,11 @@ my_library
 
 ## Citation key style
 
-`zoia` generates citekeys by taking the last names of the first three authors
-on the paper and joining them by `+`, (with a trailing `+` if there are more
-than three authors), followed by the last two digits of the publication year,
+`zoia`'s citation key style is based on [Harvard
+referencing](https://en.wikipedia.org/wiki/Parenthetical_referencing).  `zoia`
+generates citekeys by taking the last names of the first three authors on the
+paper and joining them by `+`, (with a trailing `+` if there are more than
+three authors), followed by the last two digits of the publication year,
 followed by a hyphen, followed by the first word of the title (excluding common
 words like "the", "a", "on", etc.).  
 
@@ -48,7 +50,6 @@ words like "the", "a", "on", etc.).
 | --------                                  | -----                                                                          | ---- | ------------                  |
 | Einstein, A.                              | On the electrodynamics of moving bodies                                        | 1905 | einstein05-electrodynamics    |
 | Einstein, A., and Rosen, N.               | The particle problem in the general theory of relativity                       | 1935 | einstein+rosen35-particle     |
-| Einstein, A., Podolsky, B., and Rosen, N. | Can quantum-mechanical description of physical reality be considered complete? | 1935 | einstein+podolsky+rosen35-can |
 | Abbott, B. P., et al.                     | Observation of Gravitational Waves from a Binary Black Hole Merger             | 2016 | abbott+16-obseravtion         |
 
 ### Collisions
@@ -56,14 +57,13 @@ words like "the", "a", "on", etc.).
 Inevitably you will one day try to add two different papers which have the same
 auto-generated citation keys.  The default style makes this rare, but does not
 guarantee that it will never happen.  When it does, `zoia` will add the
-character `b` after the year.  For example, suppose a less well known physicist
-named Egbert Einstein had written another, somewhat less revolutionary, paper
-in 1905 called "On the electrodynamics of stationary bodies" and you tried to
-add it, it would get a citekey of `einstein05b-electrodynamics`.  If the
-citekey with the `b` already exists, `zoia` will try adding a `c`, and then a
-`d`, etc. all the way up to `z`.  If that's still not good enough it will
-continue with `aa`, `ab`, etc., though for your sake pray that things never
-come to that.
+character `b` after the year.  For example, suppose a lesser known physicist by
+the name of Egbert Einstein had written another, somewhat less revolutionary,
+paper in 1905 called "On the electrodynamics of stationary bodies".  If you
+tried to add it, it would get a citekey of `einstein05b-electrodynamics`.  If
+the citekey with the `b` already exists, `zoia` will try adding a `c`, and then
+a `d`, etc. all the way up to `z`.  If that's still not good enough it will
+continue with `aa`, `ab`, etc., though pray that things never come to that.
 
 Note that the first paper will retain its original citekey --- it won't get an
 `a` added to it.  This is because you may have been using that old citekey in
@@ -115,7 +115,7 @@ ISBN, and PDFs directly.
 
 You can open the PDF of a paper in your library from its citekey by running:
 
-```sh
+```
 zoia open <citekey>
 ```
 
@@ -131,6 +131,15 @@ running:
 ```
 zoia note <citekey>
 ```
+
+## Synchronization
+
+Although `zoia` does not natively support synchronization across multiple
+devices at the moment, its simple data structure makes it easy to use with
+third-party synchronization software.  In particular I recommend using
+[Syncthing](https://syncthing.net/) for this purpose.  By pointing Syncthing at
+the directory containing `zoia`'s library on both devices you can keep your
+library synchronized.
 
 ## About the name
 
