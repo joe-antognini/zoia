@@ -1,13 +1,13 @@
 """Setup tooling for `zoia`."""
 
-from setuptools import setup
+import setuptools
 
 with open('README.md') as fp:
     long_description = fp.read()
 
-setup(
+setuptools.setup(
     name='zoia',
-    version='0.1.0',
+    version='0.1.2',
     description='Command line tool to manage references.',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -15,7 +15,7 @@ setup(
     author='Joseph Antognini',
     author_email='joe.antognini@gmail.com',
     license='MIT',
-    packages=['zoia'],
+    packages=setuptools.find_packages(),
     install_requires=[
         'bibtexparser>=1.2.0',
         'click>=7.1.2',
