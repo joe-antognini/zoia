@@ -2,12 +2,15 @@
 
 import setuptools
 
+import versioneer
+
 with open('README.md') as fp:
     long_description = fp.read()
 
 setuptools.setup(
     name='zoia',
-    version='0.1.2',
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description='Command line tool to manage references.',
     long_description=long_description,
     long_description_content_type='text/markdown',
