@@ -1,3 +1,14 @@
 [flake8]
+exclude =
+    .eggs,
+    .git,
+    .github,
+    .pytest_cache,
+    build,
+    dist,
+    versioneer.py,
+    zoia/_version.py,
+    *.egg-info,
+
 ignore =
     E203,  # Python Black puts whitespace around ':'.
