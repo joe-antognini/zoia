@@ -41,6 +41,7 @@ def split_name(name):
 
 def normalize_title_word(word):
     """Normalize a word in a title."""
-    good_characters = string.ascii_lowercase + string.digits
+    word = strip_diacritics(word)
     word = word.lower()
+    good_characters = string.ascii_lowercase + string.digits
     return ''.join(filter(lambda x: x in good_characters, word))
