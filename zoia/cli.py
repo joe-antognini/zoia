@@ -9,6 +9,7 @@ from zoia.open import open_
 
 
 @click.group()
+@click.version_option()
 def zoia():
     """The main entry point into `zoia`."""
 
