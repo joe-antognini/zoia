@@ -18,8 +18,20 @@ def _isbn_has_valid_checksum(identifier):
 def is_isbn(identifier):
     """Determine whether the identifier could be an ISBN."""
 
-    identifier = identifier.replace('-', '')
+    identifier = normalize(identifier)
     if identifier.isnumeric() and len(identifier) in {10, 13}:
         return _isbn_has_valid_checksum(identifier)
 
     return False
+
+
+def normalize(identifier):
+    """Remove a possible prefix from the identifier."""
+
+    identifier = identifier.lower()
+    identifier = identifier.replace('-', '')
+    prefix = 'isbn:'
+    if identifier.startswith(prefix):
+        identifier = identifier[len(prefix) :]
+
+    return identifier
