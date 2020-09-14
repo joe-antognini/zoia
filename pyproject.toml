@@ -6,6 +6,9 @@ include = '''(
     zoia
   | tests
 ).*\.pyi?$'''
+exclude = '''(
+    zoia/_version.py
+)'''
 
 [tool.pytest.ini_options]
 timeout = 5
