@@ -1,5 +1,6 @@
 """Functions to create a unique citekey."""
 
+import re
 import string
 
 import zoia.metadata
@@ -8,19 +9,24 @@ import zoia.normalization
 # TODO: Add functionality for other citekey styles.
 
 # Ignore common words in the title when generating a citekey.
-# TODO: Expand this list.
 TITLE_WORD_BLACKLIST = {'a', 'an', 'are', 'is', 'of', 'on', 'the'}
 
 
 def _get_title_start(title):
     """Get the first non-blacklisted word in the title."""
-    title_words = map(lambda x: x.lower(), title.split())
-    # TODO: Normalize the title for LaTeX characters.
-    for word in title_words:
-        if word not in TITLE_WORD_BLACKLIST:
+    title_words = re.split(' |-', title)
+    normalized_words = map(
+        zoia.normalization.normalize_title_word, title_words
+    )
+    for word in normalized_words:
+        if word and word not in TITLE_WORD_BLACKLIST:
             return word
 
-    return title_words[0]
+    for word in normalized_words:
+        if word:
+            return word
+
+    return ''
 
 
 def _apply_citekey_format(
@@ -31,7 +37,7 @@ def _apply_citekey_format(
         f'{name_string}{year}'
         f'{identifier if identifier else ""}-{first_word_of_title}'
     )
-    return zoia.normalization.normalize_string(citekey)
+    return zoia.normalization.normalize_name(citekey)
 
 
 def _generate_identifiers():
@@ -49,7 +55,6 @@ def _generate_identifiers():
 
 def create_citekey(metadatum):
     """Create a unique citekey for the object."""
-    # TODO: Expand this docstring.
 
     n_citekey_authors = 2 if len(metadatum.authors) == 2 else 1
     last_names = [

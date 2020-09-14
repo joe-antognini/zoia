@@ -1,5 +1,6 @@
 """Utilities to normalize strings."""
 
+import string
 import unicodedata
 
 
@@ -14,7 +15,7 @@ def strip_diacritics(s):
     )
 
 
-def normalize_string(s):
+def normalize_name(s):
     """Remove diacritics and return a lower-case version of the string."""
     s = strip_diacritics(s)
     return s.lower()
@@ -36,3 +37,10 @@ def split_name(name):
     last_name = ' '.join(reversed(last_names))
     first_name = ' '.join(names[: len(names) - len(last_names)])
     return [first_name, last_name]
+
+
+def normalize_title_word(word):
+    """Normalize a word in a title."""
+    good_characters = string.ascii_lowercase + string.digits
+    word = word.lower()
+    return ''.join(filter(lambda x: x in good_characters, word))
