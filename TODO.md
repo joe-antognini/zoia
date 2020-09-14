@@ -1,5 +1,8 @@
 # To-do list
 
+* [ ] Use versioneer?
+* [ ] Add arxiv IDs by the arxiv URL (including PDFs)
+* [ ] Strip special characters out of citekeys.
 * [ ] Add header information to `zoia note`.
 * [ ] Write a way to print out paper information.
 * [ ] Handle ISBNs in `zoia add`
