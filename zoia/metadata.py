@@ -93,3 +93,9 @@ def get_arxiv_ids():
     return {
         elem['arxiv_id'] for elem in metadata.values() if 'arxiv_id' in elem
     }
+
+
+def get_isbns():
+    """Return a set of all existing ISBNs."""
+    metadata = load_metadata()
+    return {elem['isbn'] for elem in metadata.values() if 'isbn' in elem}

@@ -79,6 +79,32 @@ class TestGetDoiMetadata(unittest.TestCase):
         )
 
 
+class TestGetIsbnMetadata(unittest.TestCase):
+    @unittest.mock.patch('zoia.add.isbnlib.meta')
+    def test__get_isbn_metadata(self, mock_meta):
+        mock_meta.return_value = {
+            'ISBN-13': '9781400848898',
+            'Title': 'Modern Classical Physics',
+            'Authors': ['Kip S. Thorne', 'Roger D. Blandford'],
+            'Publisher': 'Princeton University Press',
+            'Year': '2017',
+            'Language': 'en',
+        }
+
+        observed_metadata = zoia.add._get_isbn_metadata('9781400848898')
+
+        expected_metadata = {
+            'isbn': '9781400848898',
+            'title': 'Modern Classical Physics',
+            'authors': ['Kip S. Thorne', 'Roger D. Blandford'],
+            'publisher': 'Princeton University Press',
+            'year': 2017,
+            'language': 'en',
+        }
+
+        self.assertEqual(observed_metadata, expected_metadata)
+
+
 class TestAddArxivId(unittest.TestCase):
     @unittest.mock.patch('zoia.add.zoia.config.get_library_root')
     @unittest.mock.patch('zoia.add.zoia.metadata.get_arxiv_ids')
@@ -142,3 +168,37 @@ class TestAddArxivId(unittest.TestCase):
                     Path(tmpdir) / 'kilgour+segal16-inelastic/document.pdf'
                 ).exists()
             )
+
+
+class TestAddIsbn(unittest.TestCase):
+    @unittest.mock.patch('zoia.add.zoia.config.get_library_root')
+    @unittest.mock.patch('zoia.add.zoia.metadata.append_metadata')
+    @unittest.mock.patch('zoia.add.zoia.citekey.create_citekey')
+    @unittest.mock.patch('zoia.add._get_isbn_metadata')
+    @unittest.mock.patch('zoia.add.zoia.metadata.get_isbns')
+    def test__add_isbn(
+        self,
+        mock_get_isbns,
+        mock_get_isbn_metadata,
+        mock_create_citekey,
+        mock_append_metadata,
+        mock_get_library_root,
+    ):
+        mock_get_isbns.return_value = {}
+
+        metadata = {
+            'authors': ['Kip Thorne', 'Roger Blandford'],
+            'title': 'Modern Classical Physics',
+            'year': '2017',
+        }
+        mock_get_isbn_metadata.return_value = metadata
+        mock_citekey = 'thorne+blandford17-modern'
+        mock_create_citekey.return_value = mock_citekey
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            mock_get_library_root.return_value = tmpdir
+            zoia.add._add_isbn(identifier='9781400848898', citekey=None)
+
+            self.assertTrue((Path(tmpdir) / mock_citekey).is_dir())
+
+        mock_append_metadata.assert_called_once_with(mock_citekey, metadata)

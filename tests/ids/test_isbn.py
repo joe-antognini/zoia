@@ -32,9 +32,11 @@ class TestIsbn(unittest.TestCase):
         self.assertTrue(zoia.ids.isbn.is_isbn('978-0-69115-902-7'))
 
     def test_normalize(self):
-        self.assertEqual(zoia.ids.isbn.normalize('0716703440'), '0716703440')
         self.assertEqual(
-            zoia.ids.isbn.normalize('isbn:0716703440'), '0716703440'
+            zoia.ids.isbn.normalize('0716703440'), '9780716703440'
+        )
+        self.assertEqual(
+            zoia.ids.isbn.normalize('isbn:0716703440'), '9780716703440'
         )
         self.assertEqual(
             zoia.ids.isbn.normalize('arxiv:0716703440'), 'arxiv:0716703440'

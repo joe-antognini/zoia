@@ -76,8 +76,22 @@ class TestGetArxivIds(unittest.TestCase):
     def test_get_arxiv_ids(self, mock_load_metadata):
         mock_load_metadata.return_value = {
             'doe09-foo': {'arxiv_id': '0901.0123'},
+            'roe19-baz': {'isbn': '9781499999990'},
             'smith10-bar': {'arxiv_id': '1002.1001'},
         }
 
         arxiv_ids = zoia.metadata.get_arxiv_ids()
         self.assertEqual(arxiv_ids, {'0901.0123', '1002.1001'})
+
+
+class TestGetIsbns(unittest.TestCase):
+    @unittest.mock.patch('zoia.metadata.load_metadata')
+    def test_get_isbns(self, mock_load_metadata):
+        mock_load_metadata.return_value = {
+            'doe09-foo': {'arxiv_id': '0901.0123'},
+            'roe19-baz': {'isbn': '9781499999990'},
+            'smith10-bar': {'arxiv_id': '1002.1001'},
+        }
+
+        isbns = zoia.metadata.get_isbns()
+        self.assertEqual(isbns, {'9781499999990'})

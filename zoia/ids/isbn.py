@@ -1,5 +1,7 @@
 """Functionality to handle ISBNs."""
 
+import isbnlib
+
 
 def _isbn_has_valid_checksum(identifier):
     """Determine whether the given ISBN has a valid checksum."""
@@ -19,10 +21,7 @@ def is_isbn(identifier):
     """Determine whether the identifier could be an ISBN."""
 
     identifier = normalize(identifier)
-    if identifier.isnumeric() and len(identifier) in {10, 13}:
-        return _isbn_has_valid_checksum(identifier)
-
-    return False
+    return isbnlib.is_isbn10(identifier) or isbnlib.is_isbn13(identifier)
 
 
 def normalize(identifier):
@@ -33,5 +32,8 @@ def normalize(identifier):
     prefix = 'isbn:'
     if identifier.startswith(prefix):
         identifier = identifier[len(prefix) :]
+
+    if isbnlib.is_isbn10(identifier):
+        identifier = isbnlib.to_isbn13(identifier)
 
     return identifier

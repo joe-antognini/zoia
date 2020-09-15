@@ -9,13 +9,15 @@ from multiprocessing.dummy import Queue as ThreadQueue
 import bibtexparser
 import click
 import feedparser
+import isbnlib
 import requests
 from halo import Halo
 
 import zoia.citekey
 import zoia.config
-import zoia.ids.arxiv
+import zoia.ids
 import zoia.metadata
+from zoia.ids.classification import classify_and_normalize_identifier
 from zoia.normalization import split_name
 
 
@@ -106,6 +108,29 @@ def _get_doi_metadata(doi):
     return entry
 
 
+def _get_isbn_metadata(isbn):
+    metadata = isbnlib.meta(isbn, service='goob')
+    if not {'Authors', 'Title', 'Year'}.issubset(set(metadata)):
+        raise ZoiaExternalApiException(
+            f'Did not receive authors, title, or year for ISBN {isbn}.'
+        )
+
+    metadata['isbn'] = metadata.pop('ISBN-13')
+    keys = list(metadata.keys())
+    for key in keys:
+        metadata[key.lower()] = metadata.pop(key)
+
+    try:
+        metadata['year'] = int(metadata['year'])
+    except ValueError:
+        raise ZoiaExternalApiException(
+            'Google Books returned a value "{}" for the year that could '
+            'not be converted to an integer.'.format(metadata['year'])
+        )
+
+    return metadata
+
+
 def _download_arxiv_pdf(identifier):
     """Download the PDF associated with an arXiv identifier."""
     pdf = requests.get()
@@ -117,8 +142,6 @@ def _add_arxiv_id(identifier, citekey=None):
         raise ZoiaExistingItemException(
             f'arXiv paper {identifier} already exists.'
         )
-    if citekey in zoia.metadata.load_metadata():
-        raise ZoiaExistingItemException(f'Citekey {citekey} already exists.')
 
     # Downloading the PDF can take a while, so start it early in a separate
     # thread.
@@ -136,12 +159,12 @@ def _add_arxiv_id(identifier, citekey=None):
         with Halo(text='Querying DOI information...', spinner='dots'):
             arxiv_metadata.update(_get_doi_metadata(arxiv_metadata['doi']))
 
-    metadatum = zoia.metadata.Metadatum(
-        authors=arxiv_metadata['authors'],
-        title=arxiv_metadata['title'],
-        year=arxiv_metadata['year'],
-    )
     if citekey is None:
+        metadatum = zoia.metadata.Metadatum(
+            authors=arxiv_metadata['authors'],
+            title=arxiv_metadata['title'],
+            year=arxiv_metadata['year'],
+        )
         citekey = zoia.citekey.create_citekey(metadatum)
     paper_dir = os.path.join(zoia.config.get_library_root(), citekey)
     os.mkdir(paper_dir)
@@ -160,6 +183,29 @@ def _add_arxiv_id(identifier, citekey=None):
     return citekey
 
 
+def _add_isbn(identifier, citekey):
+    """Add an entry from an ISBN."""
+    if identifier in zoia.metadata.get_isbns():
+        raise ZoiaExistingItemException(f'ISBN {identifier} already exists.')
+
+    isbn_metadata = _get_isbn_metadata(identifier)
+    metadatum = zoia.metadata.Metadatum(
+        authors=isbn_metadata['authors'],
+        title=isbn_metadata['title'],
+        year=isbn_metadata['year'],
+    )
+
+    if citekey is None:
+        citekey = zoia.citekey.create_citekey(metadatum)
+
+    zoia.metadata.append_metadata(citekey, isbn_metadata)
+
+    book_dir = os.path.join(zoia.config.get_library_root(), citekey)
+    os.mkdir(book_dir)
+
+    return citekey
+
+
 @click.command()
 @click.argument('identifier', required=True)
 @click.option(
@@ -169,30 +215,34 @@ def _add_arxiv_id(identifier, citekey=None):
     help='Specify the BibTex citation key.',
 )
 def add(identifier, citekey):
-    is_arxiv = zoia.ids.arxiv.is_arxiv(identifier)
-    if not is_arxiv and identifier.lower().startswith('arxiv:'):
+    if citekey is not None and citekey in zoia.metadata.load_metadata():
+        click.secho(f'Citekey {citekey} already exists.', fg='red')
+        sys.exit(1)
+
+    try:
+        id_type, normalized_identifier = classify_and_normalize_identifier(
+            identifier
+        )
+    except zoia.ids.classification.ZoiaUnknownIdentifierException:
         click.secho(
-            'It looks like you\'re trying to provide an arXiv ID, but the ID '
-            'is malformed.',
+            f'Cannot determine what kind of identifier {identifier} is.',
             fg='red',
         )
         sys.exit(1)
 
-    if is_arxiv:
-        identifier = zoia.ids.arxiv.normalize(identifier)
-        try:
-            _add_arxiv_id(identifier, citekey)
-            # TODO: Add more information to the response message.
-            click.secho(f'Successfully added {identifier}.', fg='blue')
-        except ZoiaExternalApiException as e:
-            click.secho(f'{str(e)}', fg='red')
-            sys.exit(1)
-
-    else:
-        click.secho(f'Unable to interpret identifier {identifier}.', rg='ref')
+    try:
+        if id_type == zoia.ids.classification.IdType.ARXIV:
+            _add_arxiv_id(normalized_identifier, citekey)
+        elif id_type == zoia.ids.classification.IdType.ISBN:
+            _add_isbn(normalized_identifier, citekey)
+    except ZoiaExternalApiException as e:
+        click.secho(f'{str(e)}', fg='red')
         sys.exit(1)
 
     # TODO: Add an ISBN
     # TODO: Add a PDF
     # TODO: Add a DOI
     # TODO: Add something manually
+
+    # TODO: Add more to this success message.
+    click.secho(f'Successfully added {identifier}.', fg='blue')
