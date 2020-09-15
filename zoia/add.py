@@ -3,7 +3,6 @@
 import os
 import sys
 from datetime import datetime
-from enum import Enum
 from multiprocessing.dummy import Process as ThreadProcess
 from multiprocessing.dummy import Queue as ThreadQueue
 
@@ -18,12 +17,6 @@ import zoia.config
 import zoia.ids.arxiv
 import zoia.metadata
 from zoia.normalization import split_name
-
-
-class IdType(Enum):
-    DOI = 'doi'
-    ARXIV = 'arxiv'
-    ISBN = 'isbn'
 
 
 class ZoiaExternalApiException(Exception):
@@ -176,7 +169,7 @@ def _add_arxiv_id(identifier, citekey=None):
     help='Specify the BibTex citation key.',
 )
 def add(identifier, citekey):
-    is_arxiv = zoia.ids.arxiv.is_valid_arxiv_id(identifier)
+    is_arxiv = zoia.ids.arxiv.is_arxiv(identifier)
     if not is_arxiv and identifier.lower().startswith('arxiv:'):
         click.secho(
             'It looks like you\'re trying to provide an arXiv ID, but the ID '

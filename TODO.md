@@ -1,6 +1,5 @@
 # To-do list
 
-* [ ] Strip special characters out of citekeys.
 * [ ] Add arxiv IDs by the arxiv URL (including PDFs)
 * [ ] Add header information to `zoia note`.
 * [ ] Write a way to print out paper information.
