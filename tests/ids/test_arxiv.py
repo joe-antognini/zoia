@@ -30,14 +30,21 @@ class TestArxivValidIds(unittest.TestCase):
         self.assertFalse(
             zoia.ids.arxiv._is_valid_new_style_arxiv_id('astro-ph/9901001')
         )
-
-    def test_is_valid_arxiv_id(self):
-        self.assertFalse(zoia.ids.arxiv.is_valid_arxiv_id('foo'))
-        self.assertFalse(zoia.ids.arxiv.is_valid_arxiv_id('123'))
-        self.assertTrue(zoia.ids.arxiv.is_valid_arxiv_id('arXiv:2001.00001'))
         self.assertTrue(
-            zoia.ids.arxiv.is_valid_arxiv_id('arXiv:astro-ph/9901001')
+            zoia.ids.arxiv._is_valid_new_style_arxiv_id('2001.00001v2')
         )
+        self.assertFalse(
+            zoia.ids.arxiv._is_valid_new_style_arxiv_id('2001.00001v2v')
+        )
+        self.assertFalse(
+            zoia.ids.arxiv._is_valid_new_style_arxiv_id('2001.00001v2foo')
+        )
+
+    def test_is_arxiv(self):
+        self.assertFalse(zoia.ids.arxiv.is_arxiv('foo'))
+        self.assertFalse(zoia.ids.arxiv.is_arxiv('123'))
+        self.assertTrue(zoia.ids.arxiv.is_arxiv('arXiv:2001.00001'))
+        self.assertTrue(zoia.ids.arxiv.is_arxiv('arXiv:astro-ph/9901001'))
 
 
 class TestNormalize(unittest.TestCase):

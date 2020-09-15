@@ -1,7 +1,6 @@
 """Functionality to interface with arXiv references."""
 
 import re
-import string
 
 ARXIV_FIELDS = {
     'astro-ph',
@@ -26,48 +25,85 @@ ARXIV_FIELDS = {
 }
 
 
-# TODO: Handle versions!
 def _is_valid_old_style_arxiv_id(identifier):
     """Determine if the given identifiier is a valid old style arXiv ID."""
-    is_valid = True
-    n_slashes = identifier.count('/')
-    if n_slashes != 1:
-        is_valid = False
-    else:
-        subject, identifier = identifier.split('/')
-        # TODO: Check that the field and subject class are correctly formatted.
-        if not identifier.isnumeric():
-            is_valid = False
-        # TODO: Check that the year is valid.
-        elif int(identifier[2:4]) > 12 or int(identifier[2:4]) == 0:
-            is_valid = False
-        elif len(identifier) != 7:
-            is_valid = False
+    split_identifier = identifier.split('/')
+    if len(split_identifier) != 2:
+        return False
+    subject, identifier = split_identifier
 
-    return is_valid
+    split_subject = subject.split('.')
+    if len(split_subject) > 2:
+        return False
+    elif len(split_subject) == 2:
+        archive, version = split_subject
+        if not version.isnumeric():
+            return False
+    else:
+        archive = split_subject[0]
+
+    if archive not in ARXIV_FIELDS:
+        return False
+
+    split_identifier = identifier.split('v')
+    if len(split_identifier) > 2:
+        return False
+    elif len(split_identifier) == 2:
+        identifier, version = split_identifier
+    else:
+        identifier = split_identifier[0]
+
+    if not identifier.isnumeric():
+        return False
+
+    if len(identifier) != 7:
+        return False
+
+    year = int(identifier[:2])
+    month = int(identifier[2:4])
+
+    if not (month >= 1 and month <= 12):
+        return False
+
+    # Old version arXiv IDs don't exist before 1991 or after March 2007.
+    if (year < 91 and year > 7) or (year == 7 and month > 3):
+        return False
+
+    return True
 
 
 def _is_valid_new_style_arxiv_id(identifier):
     """Determine if the given identifier is a valid new style arXiv ID."""
 
-    is_valid = True
-    if len(identifier) < 9 or len(identifier) > 10:
-        is_valid = False
-    elif identifier.count('.') != 1:
-        is_valid = False
+    split_identifier = identifier.split('v')
+    if len(split_identifier) > 2:
+        return False
+    elif len(split_identifier) == 2:
+        identifier, version = split_identifier
+        if not version.isnumeric():
+            return False
     else:
-        date, num = identifier.split('.')
-        if any(map(lambda x: x not in string.digits, date + num)):
-            is_valid = False
-        elif len(date) != 4:
-            is_valid = False
-        elif int(date[2:4]) > 12:
-            is_valid = False
+        identifier = split_identifier[0]
 
-    return is_valid
+    split_identifier = identifier.split('.')
+    if len(split_identifier) != 2:
+        return False
+
+    prefix, suffix = split_identifier
+    if not prefix.isnumeric() or not suffix.isnumeric():
+        return False
+
+    if len(prefix) != 4 or len(suffix) not in {4, 5}:
+        return False
+
+    month = prefix[2:4]
+    if int(month) > 12:
+        return False
+
+    return True
 
 
-def is_valid_arxiv_id(identifier):
+def is_arxiv(identifier):
     """Determine whether or not the given identifier is a valid arXiv ID."""
 
     identifier = normalize(identifier)

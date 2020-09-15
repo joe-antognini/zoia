@@ -1,22 +1,15 @@
 # To-do list
 
-* [ ] Add arxiv IDs by the arxiv URL (including PDFs)
-* [ ] Add header information to `zoia note`.
-* [ ] Write a way to print out paper information.
 * [ ] Handle ISBNs in `zoia add`
 * [ ] Handle DOIs in `zoia add`
+* [ ] Handle PDFs in `zoia add`
+* [ ] Add header information to `zoia note`.
+* [ ] Write a way to print out paper information.
 * [ ] Make a singleton class to handle metadata operations.
 * [ ] Write a class to represent an object's metadata.
 * [ ] Add a "no download" flag to `zoia add`
-* [.] Write `zoia add`
-    * [ ] From DOI
-    * [X] From arXiv ID
-    * [ ] From ISBN
-    * [ ] From BibID
-* [X] Write `zoia open`
-* [ ] Write `zoia note`
-    * [ ] Add authors, title, etc. if not already there.
-    * [ ] Update the metadata if the tags change.
+* [ ] Handle BibIDs.
+* [ ] Update the metadata if the tags change in `zoia note`.
 * [ ] Write `zoia tag`
 * [ ] Write `zoia find`
 * [ ] Write `zoia rm`
@@ -26,10 +19,11 @@
     * [ ] How to store metadata
         * [ ] YAML
         * [ ] SQLite
-* [ ] Finish writing the README.
 * [ ] Write docs
+    * [ ] Docstrings
+    * [ ] Sphinx/readthedocs
+    * [ ] README
 * [ ] Benchmark performance with libraries of various sizes.
-* [ ] Refactor code to minimize I/O reads.
 * [ ] Add SQLite database backend
 * [ ] Write a web app.
 * [ ] `zoia export`
