@@ -1,5 +1,6 @@
 """Functionality to interface with arXiv references."""
 
+import re
 import string
 
 ARXIV_FIELDS = {
@@ -35,7 +36,7 @@ def _is_valid_old_style_arxiv_id(identifier):
     else:
         subject, identifier = identifier.split('/')
         # TODO: Check that the field and subject class are correctly formatted.
-        if any(map(lambda x: x not in string.digits, identifier)):
+        if not identifier.isnumeric():
             is_valid = False
         # TODO: Check that the year is valid.
         elif int(identifier[2:4]) > 12 or int(identifier[2:4]) == 0:
@@ -73,15 +74,27 @@ def is_valid_arxiv_id(identifier):
     if identifier.lower().startswith('arxiv:'):
         identifier = identifier[len('arxiv:') :]
 
-    return _is_valid_old_style_arxiv_id(
-        identifier
-    ) or _is_valid_new_style_arxiv_id(identifier)
+    valid_old_style_arxiv_id = _is_valid_old_style_arxiv_id(identifier)
+    valid_new_style_arxiv_id = _is_valid_new_style_arxiv_id(identifier)
+
+    return valid_old_style_arxiv_id or valid_new_style_arxiv_id
 
 
 def normalize(identifier):
-    """Remove the initial 'arxiv:' if it exists."""
+    """Remove the 'arxiv:' prefix or URL if it exists."""
 
-    if identifier.lower().startswith('arxiv:'):
+    identifier = identifier.lower()
+    if identifier.startswith('arxiv:'):
         identifier = identifier[len('arxiv:') :]
+    else:
+        pattern = re.compile(r'^(https?://)?(www\.)?arxiv\.org/')
+        if pattern.match(identifier) is not None:
+            stripped_identifier = pattern.split(identifier)[-1]
+            if stripped_identifier.startswith('abs/'):
+                identifier = stripped_identifier[len('abs/') :].rstrip('/')
+            elif stripped_identifier.startswith('pdf/'):
+                identifier = stripped_identifier[len('pdf/') :]
+                if identifier.endswith('.pdf'):
+                    identifier = identifier[: -len('.pdf')]
 
     return identifier
