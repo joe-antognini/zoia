@@ -12,3 +12,31 @@ class TestDoi(unittest.TestCase):
         self.assertFalse(zoia.ids.doi.is_doi('10.23915'))
         self.assertFalse(zoia.ids.doi.is_doi('10.23915/'))
         self.assertTrue(zoia.ids.doi.is_doi('10.23915/distill.00005'))
+
+    def test_normalize(self):
+        self.assertEqual(
+            zoia.ids.doi.normalize('10.23915/distill.00005'),
+            '10.23915/distill.00005',
+        )
+
+        self.assertEqual(
+            zoia.ids.doi.normalize('doi:10.23915/distill.00005'),
+            '10.23915/distill.00005',
+        )
+
+        self.assertEqual(
+            zoia.ids.doi.normalize('http://doi.org/10.23915/distill.00005'),
+            '10.23915/distill.00005',
+        )
+
+        self.assertEqual(
+            zoia.ids.doi.normalize(
+                'https://dx.doi.org/10.23915/distill.00005'
+            ),
+            '10.23915/distill.00005',
+        )
+
+        self.assertEqual(
+            zoia.ids.doi.normalize('https://arxiv.org/10.23915/distill.00005'),
+            'https://arxiv.org/10.23915/distill.00005',
+        )

@@ -1,5 +1,7 @@
 """Module to check the validity of DOIs."""
 
+import re
+
 
 def is_doi(identifier):
     """Determine whether the given identifier has a valid DOI format."""
@@ -27,3 +29,19 @@ def is_doi(identifier):
         return False
 
     return int(prefix[1]) >= 1000
+
+
+def normalize(identifier):
+    """Normalize a DOI."""
+
+    identifier = identifier.lower()
+
+    prefix = 'doi:'
+    if identifier.startswith(prefix):
+        identifier = identifier[len(prefix) :]
+    else:
+        pattern = re.compile(r'^(https?://)?(www\.)?(dx\.)?doi\.org/')
+        if pattern.match(identifier) is not None:
+            identifier = pattern.split(identifier)[-1]
+
+    return identifier
