@@ -122,6 +122,8 @@ def _get_isbn_metadata(isbn):
     for key in keys:
         metadata[key.lower()] = metadata.pop(key)
 
+    metadata['authors'] = list(map(split_name, metadata['authors']))
+
     try:
         metadata['year'] = int(metadata['year'])
     except ValueError:
@@ -187,13 +189,12 @@ def _add_isbn(identifier, citekey):
     with Halo(text='Querying ISBN metadata...', spinner='dots'):
         isbn_metadata = _get_isbn_metadata(identifier)
 
-    metadatum = zoia.metadata.Metadatum(
-        authors=isbn_metadata['authors'],
-        title=isbn_metadata['title'],
-        year=isbn_metadata['year'],
-    )
-
     if citekey is None:
+        metadatum = zoia.metadata.Metadatum(
+            authors=isbn_metadata['authors'],
+            title=isbn_metadata['title'],
+            year=isbn_metadata['year'],
+        )
         citekey = zoia.citekey.create_citekey(metadatum)
 
     zoia.metadata.append_metadata(citekey, isbn_metadata)

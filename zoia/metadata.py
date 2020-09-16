@@ -7,6 +7,7 @@ from typing import List
 
 from zoia.config import get_library_root
 from zoia.config import ZOIA_METADATA_FILENAME
+from zoia.normalization import split_name
 
 
 @dataclass
@@ -22,6 +23,18 @@ class Metadatum:
             authors=d['authors'],
             year=d['year'],
         )
+
+    def __post_init__(self):
+        if not isinstance(self.authors, list):
+            raise TypeError(
+                f'authors attribute must be a list, but got type '
+                f'{type(self.authors)}.'
+            )
+
+        self.authors = [
+            split_name(elem) if isinstance(elem, str) else elem
+            for elem in self.authors
+        ]
 
 
 def load_metadata():

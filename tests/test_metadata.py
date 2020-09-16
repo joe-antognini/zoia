@@ -67,7 +67,7 @@ class TestMetadatum(unittest.TestCase):
         }
         metadatum = zoia.metadata.Metadatum.from_dict(d)
         self.assertEqual(metadatum.title, 'foo')
-        self.assertEqual(metadatum.authors, ['John Doe', 'Jane Roe'])
+        self.assertEqual(metadatum.authors, [['John', 'Doe'], ['Jane', 'Roe']])
         self.assertEqual(metadatum.year, 2001)
 
 

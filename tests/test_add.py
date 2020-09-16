@@ -97,7 +97,7 @@ class TestGetIsbnMetadata(unittest.TestCase):
         expected_metadata = {
             'isbn': '9781400848898',
             'title': 'Modern Classical Physics',
-            'authors': ['Kip S. Thorne', 'Roger D. Blandford'],
+            'authors': [['Kip S.', 'Thorne'], ['Roger D.', 'Blandford']],
             'publisher': 'Princeton University Press',
             'year': 2017,
             'language': 'en',
@@ -188,7 +188,7 @@ class TestAddIsbn(unittest.TestCase):
         mock_get_isbns.return_value = {}
 
         metadata = {
-            'authors': ['Kip Thorne', 'Roger Blandford'],
+            'authors': [['Kip', 'Thorne'], ['Roger', 'Blandford']],
             'title': 'Modern Classical Physics',
             'year': '2017',
         }
@@ -246,7 +246,7 @@ class TestAddDoi(unittest.TestCase):
         mock_requests_get.side_effect = requests_side_effect
 
         mock__get_doi_metadata.return_value = {
-            'authors': ['J. Antognini'],
+            'authors': [['J.', 'Antognini']],
             'title': 'Timescales of Kozai-Lidov oscillations',
             'year': 2015,
         }
@@ -265,7 +265,7 @@ class TestAddDoi(unittest.TestCase):
         mock_append_metadata.assert_called_once_with(
             'antognini15-timescales',
             {
-                'authors': ['J. Antognini'],
+                'authors': [['J.', 'Antognini']],
                 'title': 'Timescales of Kozai-Lidov oscillations',
                 'year': 2015,
                 'arxiv_id': '1504.05957',
