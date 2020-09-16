@@ -256,7 +256,7 @@ class TestAddDoi(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmpdir:
             mock_get_library_root.return_value = tmpdir
-            citekey = zoia.add._add_doi('10.1093/mnras/stv1552', citekey=None)
+            zoia.add._add_doi('10.1093/mnras/stv1552', citekey=None)
 
             self.assertTrue(
                 (Path(tmpdir) / citekey / 'document.pdf').is_file()

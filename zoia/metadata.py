@@ -36,6 +36,26 @@ class Metadatum:
             for elem in self.authors
         ]
 
+    def __str__(self):
+        if len(self.authors) == 1:
+            author_str = self.authors[0][1]
+        elif len(self.authors) == 2:
+            author_str = self.authors[0][1] + ' & ' + self.authors[1][1]
+        else:
+            author_str = self.authors[0][1] + ' et al.'
+
+        s = f'{author_str} ({self.year}), '
+        title_str = []
+        str_len = len(s) + 2  # Quotation marks around the title add two chars.
+        for i_word, word in enumerate(self.title.split()):
+            str_len += len(word) + 1
+            title_str.append(word)
+            if str_len > 60 and i_word > 2:
+                title_str.append('...')
+                break
+        title_str = ' '.join(title_str)
+        return s + f'"{title_str}"'
+
 
 def load_metadata():
     """Load the metadata for the library."""

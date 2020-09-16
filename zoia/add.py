@@ -178,7 +178,7 @@ def _add_arxiv_id(identifier, citekey=None):
     else:
         click.secho('Was unable to fetch a PDF', fg='yellow')
 
-    return citekey
+    return metadatum
 
 
 def _add_isbn(identifier, citekey):
@@ -202,7 +202,7 @@ def _add_isbn(identifier, citekey):
     book_dir = os.path.join(zoia.config.get_library_root(), citekey)
     os.mkdir(book_dir)
 
-    return citekey
+    return metadatum
 
 
 def _add_doi(identifier, citekey):
@@ -258,7 +258,7 @@ def _add_doi(identifier, citekey):
 
     zoia.metadata.append_metadata(citekey, doi_metadata)
 
-    return citekey
+    return metadatum
 
 
 @click.command()
@@ -287,11 +287,11 @@ def add(identifier, citekey):
 
     try:
         if id_type == IdType.ARXIV:
-            _add_arxiv_id(normalized_identifier, citekey)
+            metadatum = _add_arxiv_id(normalized_identifier, citekey)
         elif id_type == IdType.ISBN:
-            _add_isbn(normalized_identifier, citekey)
+            metadatum = _add_isbn(normalized_identifier, citekey)
         elif id_type == IdType.DOI:
-            _add_doi(normalized_identifier, citekey)
+            metadatum = _add_doi(normalized_identifier, citekey)
     except (ZoiaExternalApiException, ZoiaExistingItemException) as e:
         click.secho(f'{str(e)}', fg='red')
         sys.exit(1)
@@ -302,4 +302,4 @@ def add(identifier, citekey):
     # TODO: Add something manually
 
     # TODO: Add more to this success message.
-    click.secho(f'Successfully added {identifier}.', fg='blue')
+    click.secho(f'Successfully added {str(metadatum)}.', fg='blue')

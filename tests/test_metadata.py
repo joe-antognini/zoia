@@ -70,6 +70,15 @@ class TestMetadatum(unittest.TestCase):
         self.assertEqual(metadatum.authors, [['John', 'Doe'], ['Jane', 'Roe']])
         self.assertEqual(metadatum.year, 2001)
 
+    def test_metadatum_str(self):
+        metadatum = zoia.metadata.Metadatum(
+            authors=['John Doe', 'Jane Roe'],
+            year=2001,
+            title='Foo',
+        )
+
+        self.assertEqual(str(metadatum), 'Doe & Roe (2001), "Foo"')
+
 
 class TestGetArxivIds(unittest.TestCase):
     @unittest.mock.patch('zoia.metadata.load_metadata')
