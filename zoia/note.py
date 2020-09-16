@@ -6,6 +6,27 @@ import sys
 import click
 
 import zoia.config
+import zoia.yaml
+
+
+def _create_header(metadatum):
+    """Create a header string for a paper."""
+    header = {}
+    if 'title' in metadatum:
+        header['title'] = metadatum['title']
+    if 'authors' in metadatum:
+        authors = metadatum['authors']
+        if len(authors) <= 4:
+            header['authors'] = [' '.join(author) for author in authors]
+        else:
+            header['authors'] = [' '.join(author) for author in authors[:3]]
+            header['authors'].append('et al.')
+    if 'year' in metadatum:
+        header['year'] = metadatum['year']
+    if 'tags' in metadatum:
+        header['tags'] = ', '.join(metadatum['tags'])
+
+    return '---\n' + zoia.yaml.dump(header, indent=4) + '---\n'
 
 
 @click.command()
@@ -21,8 +42,8 @@ def note(citekey):
         zoia.config.get_library_root(), citekey, 'notes.md'
     )
 
+    text = None
     if not os.path.isfile(note_path):
-        # TODO: Add a header here.
-        pass
+        text = _create_header(metadata[citekey])
 
-    click.edit(filename=note_path)
+    click.edit(text=text, filename=note_path)

@@ -1,6 +1,5 @@
 # To-do list
 
-* [ ] Add header information to `zoia note`.
 * [ ] Handle PDFs in `zoia add`
 * [ ] Make a singleton class to handle metadata operations.
 * [ ] Write a class to represent an object's metadata.
@@ -11,6 +10,7 @@
 * [ ] Add papers from a URL to a PDF.
 * [ ] Write `zoia find`
 * [ ] Write a mocked backend for testing.
+* [ ] Add a code coverage tool.
 * [ ] Handle BibIDs.
 * [ ] Write `zoia rm`
 * [ ] Write `zoia config` to set configuration

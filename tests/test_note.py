@@ -2,11 +2,39 @@ import tempfile
 import unittest
 import unittest.mock
 from pathlib import Path
+from textwrap import dedent
 
 from click.testing import CliRunner
 
 from .context import zoia
 import zoia.cli
+import zoia.note
+
+
+class TestCreateHeader(unittest.TestCase):
+    def test__create_header(self):
+        metadatum = {
+            'title': 'Foo',
+            'authors': [['Jane', 'Roe'], ['John', 'Doe']],
+            'year': 2001,
+            'tags': ['bar', 'baz'],
+        }
+
+        observed_header = zoia.note._create_header(metadatum)
+        expected_header = dedent(
+            '''\
+            ---
+            title: Foo
+            authors:
+                - Jane Roe
+                - John Doe
+            year: 2001
+            tags: bar, baz
+            ---
+            '''
+        )
+
+        self.assertEqual(observed_header, expected_header)
 
 
 class TestNote(unittest.TestCase):

@@ -2,11 +2,12 @@
 
 import json
 import sys
-
-import click
 import yaml
 
+import click
+
 import zoia.config
+import zoia.yaml
 from zoia.metadata import Metadatum
 
 
@@ -32,7 +33,7 @@ def edit(citekey, syntax):
         text = json.dumps(metadatum, indent=4)
         extension = '.json'
     elif syntax == 'yaml':
-        text = yaml.dump(metadatum, indent=4)
+        text = zoia.yaml.dump(metadatum, indent=4)
         extension = '.yaml'
     else:
         click.secho(f'Got unsupported syntax {syntax}.', fg='red')
