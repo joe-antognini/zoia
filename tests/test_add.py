@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 import unittest
@@ -202,3 +203,71 @@ class TestAddIsbn(unittest.TestCase):
             self.assertTrue((Path(tmpdir) / mock_citekey).is_dir())
 
         mock_append_metadata.assert_called_once_with(mock_citekey, metadata)
+
+
+class TestAddDoi(unittest.TestCase):
+    @unittest.mock.patch('zoia.add.zoia.metadata.get_dois')
+    @unittest.mock.patch('zoia.add.requests.get')
+    @unittest.mock.patch('zoia.add._get_doi_metadata')
+    @unittest.mock.patch('zoia.add.zoia.citekey.create_citekey')
+    @unittest.mock.patch('zoia.add.zoia.config.get_library_root')
+    @unittest.mock.patch('zoia.add.zoia.metadata.append_metadata')
+    def test__add_doi(
+        self,
+        mock_append_metadata,
+        mock_get_library_root,
+        mock_create_citekey,
+        mock__get_doi_metadata,
+        mock_requests_get,
+        mock_get_dois,
+    ):
+        mock_get_dois.return_value = {}
+
+        mock_arxiv_response = unittest.mock.MagicMock()
+        mock_arxiv_response.status_code = 200
+        mock_arxiv_response.text = json.dumps({'arxivId': '1504.05957'})
+
+        mock_pdf_response = unittest.mock.MagicMock()
+        mock_pdf_response.status_code = 200
+        mock_pdf_response.content = b'%PDF'
+
+        def requests_side_effect(url):
+            semantic_scholar_url = (
+                'https://api.semanticscholar.org/v1/paper/10.1093/mnras/'
+                'stv1552'
+            )
+            if url == semantic_scholar_url:
+                return mock_arxiv_response
+            elif url == 'https://arxiv.org/pdf/1504.05957.pdf':
+                return mock_pdf_response
+            else:
+                raise ValueError(f'Bad url {url}')
+
+        mock_requests_get.side_effect = requests_side_effect
+
+        mock__get_doi_metadata.return_value = {
+            'authors': ['J. Antognini'],
+            'title': 'Timescales of Kozai-Lidov oscillations',
+            'year': 2015,
+        }
+
+        citekey = 'antognini15-timescales'
+        mock_create_citekey.return_value = citekey
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            mock_get_library_root.return_value = tmpdir
+            citekey = zoia.add._add_doi('10.1093/mnras/stv1552', citekey=None)
+
+            self.assertTrue(
+                (Path(tmpdir) / citekey / 'document.pdf').is_file()
+            )
+
+        mock_append_metadata.assert_called_once_with(
+            'antognini15-timescales',
+            {
+                'authors': ['J. Antognini'],
+                'title': 'Timescales of Kozai-Lidov oscillations',
+                'year': 2015,
+                'arxiv_id': '1504.05957',
+            },
+        )

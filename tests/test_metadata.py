@@ -95,3 +95,16 @@ class TestGetIsbns(unittest.TestCase):
 
         isbns = zoia.metadata.get_isbns()
         self.assertEqual(isbns, {'9781499999990'})
+
+
+class TestGetDois(unittest.TestCase):
+    @unittest.mock.patch('zoia.metadata.load_metadata')
+    def test_get_dois(self, mock_load_metadata):
+        mock_load_metadata.return_value = {
+            'doe09-foo': {'arxiv_id': '0901.0123'},
+            'roe19-baz': {'isbn': '9781499999990'},
+            'smith10-bar': {'doi': '10.1000/foo'},
+        }
+
+        isbns = zoia.metadata.get_dois()
+        self.assertEqual(isbns, {'10.1000/foo'})

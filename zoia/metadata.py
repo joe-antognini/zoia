@@ -99,3 +99,9 @@ def get_isbns():
     """Return a set of all existing ISBNs."""
     metadata = load_metadata()
     return {elem['isbn'] for elem in metadata.values() if 'isbn' in elem}
+
+
+def get_dois():
+    """Return a set of all existing DOIs."""
+    metadata = load_metadata()
+    return {elem['doi'] for elem in metadata.values() if 'doi' in elem}

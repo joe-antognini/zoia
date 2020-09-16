@@ -1,17 +1,17 @@
 # To-do list
 
-* [ ] Handle ISBNs in `zoia add`
-* [ ] Handle DOIs in `zoia add`
 * [ ] Handle PDFs in `zoia add`
 * [ ] Add header information to `zoia note`.
 * [ ] Write a way to print out paper information.
 * [ ] Make a singleton class to handle metadata operations.
 * [ ] Write a class to represent an object's metadata.
 * [ ] Add a "no download" flag to `zoia add`
-* [ ] Handle BibIDs.
 * [ ] Update the metadata if the tags change in `zoia note`.
 * [ ] Write `zoia tag`
+* [ ] Add papers from a URL to a PDF.
 * [ ] Write `zoia find`
+* [ ] Write a mocked backend for testing.
+* [ ] Handle BibIDs.
 * [ ] Write `zoia rm`
 * [ ] Write `zoia config` to set configuration
 * [ ] Add more config options

@@ -1,5 +1,6 @@
 """Add new documents to the library."""
 
+import json
 import os
 import sys
 from datetime import datetime
@@ -18,6 +19,7 @@ import zoia.config
 import zoia.ids
 import zoia.metadata
 from zoia.ids.classification import classify_and_normalize_identifier
+from zoia.ids.classification import IdType
 from zoia.normalization import split_name
 
 
@@ -131,12 +133,6 @@ def _get_isbn_metadata(isbn):
     return metadata
 
 
-def _download_arxiv_pdf(identifier):
-    """Download the PDF associated with an arXiv identifier."""
-    pdf = requests.get()
-    return pdf
-
-
 def _add_arxiv_id(identifier, citekey=None):
     if identifier in zoia.metadata.get_arxiv_ids():
         raise ZoiaExistingItemException(
@@ -188,7 +184,9 @@ def _add_isbn(identifier, citekey):
     if identifier in zoia.metadata.get_isbns():
         raise ZoiaExistingItemException(f'ISBN {identifier} already exists.')
 
-    isbn_metadata = _get_isbn_metadata(identifier)
+    with Halo(text='Querying ISBN metadata...', spinner='dots'):
+        isbn_metadata = _get_isbn_metadata(identifier)
+
     metadatum = zoia.metadata.Metadatum(
         authors=isbn_metadata['authors'],
         title=isbn_metadata['title'],
@@ -202,6 +200,62 @@ def _add_isbn(identifier, citekey):
 
     book_dir = os.path.join(zoia.config.get_library_root(), citekey)
     os.mkdir(book_dir)
+
+    return citekey
+
+
+def _add_doi(identifier, citekey):
+    """Add an entry from a DOI."""
+    if identifier in zoia.metadata.get_dois():
+        raise ZoiaExistingItemException(f'DOI {identifier} already exists.')
+
+    # Query Semantic Scholar to get the corresponding arxiv ID (if there is
+    # one) in a separate thread.
+    arxiv_queue = ThreadQueue()
+    arxiv_process = ThreadProcess(
+        target=lambda q, x: q.put(requests.get(x)),
+        args=(
+            arxiv_queue,
+            f'https://api.semanticscholar.org/v1/paper/{identifier}',
+        ),
+    )
+    arxiv_process.start()
+
+    with Halo(text='Querying DOI metadata...'):
+        doi_metadata = _get_doi_metadata(identifier)
+
+    metadatum = zoia.metadata.Metadatum(
+        authors=doi_metadata['authors'],
+        title=doi_metadata['title'],
+        year=doi_metadata['year'],
+    )
+
+    if citekey is None:
+        citekey = zoia.citekey.create_citekey(metadatum)
+
+    paper_dir = os.path.join(zoia.config.get_library_root(), citekey)
+    os.mkdir(paper_dir)
+
+    with Halo(text='Querying Semantic Scholar for corresponding arXiv ID...'):
+        arxiv_metadata_response = arxiv_queue.get()
+        arxiv_process.join()
+
+    arxiv_metadata = json.loads(arxiv_metadata_response.text)
+
+    if (arxiv_id := arxiv_metadata.get('arxivId')) is not None:
+        doi_metadata['arxiv_id'] = arxiv_id
+        with Halo(text='Downloading PDF from arXiv...'):
+            pdf_response = requests.get(
+                f'https://arxiv.org/pdf/{arxiv_id}.pdf'
+            )
+
+        if pdf_response.status_code == 200:
+            with open(os.path.join(paper_dir, 'document.pdf'), 'wb') as fp:
+                fp.write(pdf_response.content)
+        else:
+            click.secho('Was unable to fetch a PDF', fg='yellow')
+
+    zoia.metadata.append_metadata(citekey, doi_metadata)
 
     return citekey
 
@@ -231,10 +285,12 @@ def add(identifier, citekey):
         sys.exit(1)
 
     try:
-        if id_type == zoia.ids.classification.IdType.ARXIV:
+        if id_type == IdType.ARXIV:
             _add_arxiv_id(normalized_identifier, citekey)
-        elif id_type == zoia.ids.classification.IdType.ISBN:
+        elif id_type == IdType.ISBN:
             _add_isbn(normalized_identifier, citekey)
+        elif id_type == IdType.DOI:
+            _add_doi(normalized_identifier, citekey)
     except ZoiaExternalApiException as e:
         click.secho(f'{str(e)}', fg='red')
         sys.exit(1)
