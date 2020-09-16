@@ -50,7 +50,7 @@ class Metadatum:
         for i_word, word in enumerate(self.title.split()):
             str_len += len(word) + 1
             title_str.append(word)
-            if str_len > 60 and i_word > 2:
+            if str_len > 65 and i_word > 2:
                 title_str.append('...')
                 break
         title_str = ' '.join(title_str)
