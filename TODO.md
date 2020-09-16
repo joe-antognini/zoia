@@ -1,8 +1,7 @@
 # To-do list
 
-* [ ] Handle PDFs in `zoia add`
 * [ ] Add header information to `zoia note`.
-* [ ] Write a way to print out paper information.
+* [ ] Handle PDFs in `zoia add`
 * [ ] Make a singleton class to handle metadata operations.
 * [ ] Write a class to represent an object's metadata.
 * [ ] Add a "no download" flag to `zoia add`

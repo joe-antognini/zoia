@@ -109,6 +109,16 @@ def append_metadata(key, value):
     _write_metadata(metadata)
 
 
+def replace_metadata(key, value):
+    """Replace the data for a given key."""
+    metadata = load_metadata()
+    if key not in metadata:
+        raise KeyError(f'Key {key} not present.')
+
+    metadata[key] = value
+    _write_metadata(metadata)
+
+
 def rename_key(old_key, new_key):
     """Rename a citekey in the metadata."""
     metadata = load_metadata()
