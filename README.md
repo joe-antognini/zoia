@@ -83,7 +83,7 @@ Whatever the directory, `zoia` keeps its configuration data in file called
 
 After you have installed `zoia` you can initialize your library by running:
 
-```sh
+```
 zoia init [directory]
 ```
 
@@ -96,20 +96,29 @@ doesn't already exist).
 
 ### Adding a paper
 
-Once you have initialized your library, you can add papers to it using their
-arXiv ID:
+Once you have initialized your library, you can add items by specifying an
+identifier.  The following identifiers are currently supported:
+
+* arXiv IDs
+* DOIs
+* ISBNs
+
+`zoia` will figure out what kind of identifier you've given it on its own:
 
 ```sh
-zoia add 1001.0001
+zoia add 1602.03837
+zoia add 10.1103/PhysRevLett.116.061102
+zoia add 9781400889099
 ```
 
-It's also fine if you have the prefix `arxiv:1001.0001`.
+It's also fine to include prefixes like `arxiv:1602.03837` or
+`doi:10.1103/PhysRevLett.116.061102`.
 
 `zoia` will add the paper's metadata to the `.metadata.json` file and download
-the PDF.
+the PDF if it is on the arXiv.  (If you provide a DOI, `zoia` will still check
+to see if the paper exists on the arXiv and download it if it does.)
 
-In the future `zoia` will support adding papers by their DOI, books by their
-ISBN, and PDFs directly.
+In the future `zoia` will also support adding papers by their PDFs directly.
 
 ### Opening a paper
 
@@ -131,6 +140,17 @@ running:
 ```
 zoia note <citekey>
 ```
+
+### Editing a paper's metadata
+
+If there is an error in a paper's metadata, you can edit it by running:
+
+```
+zoia edit <citekey>
+```
+
+By default `zoia` will present the data in JSON format, but if you prefer YAML,
+you can specify that with the `--syntax=yaml` option.
 
 ## Synchronization
 
