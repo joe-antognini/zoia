@@ -291,7 +291,7 @@ def add(identifier, citekey):
             _add_isbn(normalized_identifier, citekey)
         elif id_type == IdType.DOI:
             _add_doi(normalized_identifier, citekey)
-    except ZoiaExternalApiException as e:
+    except (ZoiaExternalApiException, ZoiaExistingItemException) as e:
         click.secho(f'{str(e)}', fg='red')
         sys.exit(1)
 
