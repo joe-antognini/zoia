@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import tempfile
@@ -269,5 +270,6 @@ class TestAddDoi(unittest.TestCase):
                 'title': 'Timescales of Kozai-Lidov oscillations',
                 'year': 2015,
                 'arxiv_id': '1504.05957',
+                'md5': hashlib.md5(mock_pdf_response.content).hexdigest(),
             },
         )

@@ -2,6 +2,14 @@
 
 import yaml
 
+import click
+
+import zoia.metadata
+
+
+class ZoiaYamlValidationError(Exception):
+    pass
+
 
 class IndentedListDumper(yaml.Dumper):
     """YAML Dumper class to increase the indentation of lists."""
@@ -42,3 +50,45 @@ def remove_header(text):
             break
 
     return text[body_start:]
+
+
+def metadata_validator(obj):
+    """Determine whether an object is a valid metadatum."""
+    try:
+        zoia.metadata.Metadatum.from_dict(obj)
+    except Exception as e:
+        raise ZoiaYamlValidationError(str(e))
+
+
+def edit_until_valid(text, validation_fn=None):
+    """Ask the user to keep editing if they don't provide valid YAML."""
+
+    obj = None
+    while True:
+        text = click.edit(text=text, extension='.yaml')
+
+        if text is not None:
+            try:
+                obj = yaml.safe_load(text)
+                if validation_fn is not None:
+                    try:
+                        validation_fn(obj)
+                    except ZoiaYamlValidationError as e:
+                        click.secho(str(e), fg='red')
+                        if click.confirm('Continue editing to fix?'):
+                            continue
+                        else:
+                            break
+            except (yaml.scanner.ScannerError, yaml.parser.ParserError):
+                if click.confirm(
+                    'Error parsing file. Continue editing to fix it?'
+                ):
+                    continue
+                else:
+                    break
+        else:
+            click.secho('No input recorded. Nothing saved.', fg='red')
+
+        break
+
+    return obj

@@ -148,3 +148,9 @@ def get_dois():
     """Return a set of all existing DOIs."""
     metadata = load_metadata()
     return {elem['doi'] for elem in metadata.values() if 'doi' in elem}
+
+
+def get_md5_hashes():
+    """Return a set of all the MD5 hashes of existing PDFs."""
+    metadata = load_metadata()
+    return {elem['md5'] for elem in metadata.values() if 'md5' in elem}

@@ -1,11 +1,14 @@
 """Add new documents to the library."""
 
+import hashlib
 import json
 import os
+import shutil
 import sys
 from datetime import datetime
 from multiprocessing.dummy import Process as ThreadProcess
 from multiprocessing.dummy import Queue as ThreadQueue
+from textwrap import dedent
 
 import bibtexparser
 import click
@@ -167,7 +170,6 @@ def _add_arxiv_id(identifier, citekey=None):
     paper_dir = os.path.join(zoia.config.get_library_root(), citekey)
     os.mkdir(paper_dir)
 
-    zoia.metadata.append_metadata(citekey, arxiv_metadata)
     with Halo(text='Downloading PDF...', spinner='dots'):
         pdf = pdf_queue.get()
         pdf_process.join()
@@ -175,8 +177,11 @@ def _add_arxiv_id(identifier, citekey=None):
     if pdf.status_code == 200:
         with open(os.path.join(paper_dir, 'document.pdf'), 'wb') as fp:
             fp.write(pdf.content)
+        arxiv_metadata['md5'] = hashlib.md5(pdf.content).hexdigest()
     else:
         click.secho('Was unable to fetch a PDF', fg='yellow')
+
+    zoia.metadata.append_metadata(citekey, arxiv_metadata)
 
     return metadatum
 
@@ -253,10 +258,64 @@ def _add_doi(identifier, citekey):
         if pdf_response.status_code == 200:
             with open(os.path.join(paper_dir, 'document.pdf'), 'wb') as fp:
                 fp.write(pdf_response.content)
+            doi_metadata['md5'] = hashlib.md5(pdf_response.content).hexdigest()
         else:
             click.secho('Was unable to fetch a PDF', fg='yellow')
 
     zoia.metadata.append_metadata(citekey, doi_metadata)
+
+    return metadatum
+
+
+def _add_pdf(identifier, citekey, move_paper=False):
+    """Add a PDF file."""
+    md5_hashes = zoia.metadata.get_md5_hashes()
+    with open(identifier, 'rb') as fp:
+        pdf = fp.read()
+    md5_hash = hashlib.md5(pdf).hexdigest()
+    if md5_hash in md5_hashes:
+        raise ZoiaExistingItemException(f'PDF{identifier} already exists.')
+
+    doi = zoia.pdf.get_doi_from_pdf(identifier)
+    if doi is not None:
+        with Halo(text='Found DOI, querying metadata...'):
+            metadata = _get_doi_metadata(identifier)
+
+        metadatum = zoia.metadata.Metadatum.from_dict(metadata)
+
+    else:
+        text = dedent(
+            '''\
+            # No DOI was found for the PDF.  Please fill out the document's
+            # metadata in YAML format.  You can add additional fields, but
+            # the fields in the template must be filled out.
+            title:
+            authors:
+                -
+            year:
+            '''
+        )
+
+        metadata = zoia.yaml.edit_until_valid(
+            text, validator_fn=zoia.yaml.metadata_validator
+        )
+        if metadata is None:
+            click.secho('Couldn\'t parse metadata, not adding PDF.')
+            sys.exit(1)
+
+        metadatum = zoia.metadata.Metadatum.from_dict(metadata)
+
+    if citekey is None:
+        citekey = zoia.citekey.create_citekey(metadatum)
+
+    paper_dir = os.path.join(zoia.config.get_library_root(), citekey)
+    os.mkdir(paper_dir)
+    if move_paper:
+        shutil.move(identifier, os.path.join(paper_dir, 'document.pdf'))
+    else:
+        shutil.copyfile(identifier, os.path.join(paper_dir, 'document.pdf'))
+
+    zoia.metadata.append_metadata(citekey, metadata)
 
     return metadatum
 
@@ -292,14 +351,12 @@ def add(identifier, citekey):
             metadatum = _add_isbn(normalized_identifier, citekey)
         elif id_type == IdType.DOI:
             metadatum = _add_doi(normalized_identifier, citekey)
+        elif id_type == IdType.PDF:
+            metadatum = _add_pdf(normalized_identifier, citekey)
     except (ZoiaExternalApiException, ZoiaExistingItemException) as e:
         click.secho(f'{str(e)}', fg='red')
         sys.exit(1)
 
-    # TODO: Add an ISBN
-    # TODO: Add a PDF
-    # TODO: Add a DOI
     # TODO: Add something manually
 
-    # TODO: Add more to this success message.
     click.secho(f'Successfully added {str(metadatum)}.', fg='blue')

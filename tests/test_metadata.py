@@ -115,5 +115,19 @@ class TestGetDois(unittest.TestCase):
             'smith10-bar': {'doi': '10.1000/foo'},
         }
 
-        isbns = zoia.metadata.get_dois()
-        self.assertEqual(isbns, {'10.1000/foo'})
+        dois = zoia.metadata.get_dois()
+        self.assertEqual(dois, {'10.1000/foo'})
+
+
+class TestGetMd5s(unittest.TestCase):
+    @unittest.mock.patch('zoia.metadata.load_metadata')
+    def test_get_dois(self, mock_load_metadata):
+        mock_load_metadata.return_value = {
+            'doe09-foo': {'arxiv_id': '0901.0123'},
+            'roe19-baz': {'isbn': '9781499999990'},
+            'smith10-bar': {'doi': '10.1000/foo'},
+            'johnson11-qux': {'md5': '2aa5d113c95b2432dbdb7c6440115774'},
+        }
+
+        md5_hashes = zoia.metadata.get_md5_hashes()
+        self.assertEqual(md5_hashes, {'2aa5d113c95b2432dbdb7c6440115774'})

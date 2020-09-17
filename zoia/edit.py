@@ -2,7 +2,6 @@
 
 import json
 import sys
-import yaml
 
 import click
 
@@ -52,14 +51,9 @@ def edit(citekey, syntax):
                 )
                 sys.exit(1)
         elif syntax == 'yaml':
-            try:
-                new_metadatum = yaml.safe_load(new_metadatum_str)
-            except yaml.parser.ParserError:
-                # TODO: Add a better error message here and give the user the
-                # opportunity to fix the mistake.
-                click.secho(
-                    'Could not parse YAML, failed to save metadata.', fg='red'
-                )
+            new_metadatum = zoia.yaml.edit_until_valid(new_metadatum_str)
+            if new_metadatum is None:
+                click.secho('Didn\'t save metadata.', fg='red')
                 sys.exit(1)
     else:
         click.secho('File not saved, not changing metadata.', fg='red')
