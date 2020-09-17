@@ -1,12 +1,11 @@
 # To-do list
 
-* [ ] Handle PDFs in `zoia add`
+* [ ] Write `zoia tag`
 * [ ] Make a singleton class to handle metadata operations.
 * [ ] Write a class to represent an object's metadata.
 * [ ] Add a "no download" flag to `zoia add`
 * [ ] Add a way to try re-downloading an existing paper.
 * [ ] Update the metadata if the tags change in `zoia note`.
-* [ ] Write `zoia tag`
 * [ ] Add papers from a URL to a PDF.
 * [ ] Write `zoia find`
 * [ ] Write a mocked backend for testing.

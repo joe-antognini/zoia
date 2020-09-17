@@ -273,3 +273,51 @@ class TestAddDoi(unittest.TestCase):
                 'md5': hashlib.md5(mock_pdf_response.content).hexdigest(),
             },
         )
+
+
+class TestAddPdf(unittest.TestCase):
+    @unittest.mock.patch('zoia.add.zoia.metadata.append_metadata')
+    @unittest.mock.patch('zoia.add.zoia.config.get_library_root')
+    @unittest.mock.patch('zoia.add.click.confirm')
+    @unittest.mock.patch('zoia.add._get_doi_metadata')
+    @unittest.mock.patch('zoia.add.zoia.pdf.get_doi_from_pdf')
+    @unittest.mock.patch('zoia.add.zoia.metadata.get_md5_hashes')
+    def test__add_pdf(
+        self,
+        mock_get_md5_hashes,
+        mock_get_doi_from_pdf,
+        mock_get_doi_metadata,
+        mock_click_confirm,
+        mock_get_library_root,
+        mock_append_metadata,
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            library_root = os.path.join(tmpdir, 'zoia')
+            os.mkdir(library_root)
+            mock_get_library_root.return_value = library_root
+
+            identifier = os.path.join(tmpdir, 'foo.pdf')
+            with open(identifier, 'wb') as fp:
+                fp.write(b'%PDF')
+
+            mock_get_md5_hashes.return_value = {}
+
+            mock_get_doi_from_pdf.return_value = '10.1000/foo'
+            mock_metadata = {
+                'title': 'Foo',
+                'authors': [['John', 'Doe']],
+                'year': 1999,
+            }
+            mock_get_doi_metadata.return_value = mock_metadata
+
+            mock_click_confirm.return_value = True
+
+            zoia.add._add_pdf(identifier, citekey=None, move_paper=False)
+
+            mock_append_metadata.assert_called_once_with(
+                'doe99-foo', mock_metadata
+            )
+
+            self.assertTrue(
+                (Path(library_root) / 'doe99-foo/document.pdf').is_file()
+            )

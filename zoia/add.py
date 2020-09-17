@@ -21,6 +21,7 @@ import zoia.citekey
 import zoia.config
 import zoia.ids
 import zoia.metadata
+import zoia.pdf
 from zoia.ids.classification import classify_and_normalize_identifier
 from zoia.ids.classification import IdType
 from zoia.normalization import split_name
@@ -282,7 +283,27 @@ def _add_pdf(identifier, citekey, move_paper=False):
             metadata = _get_doi_metadata(identifier)
 
         metadatum = zoia.metadata.Metadatum.from_dict(metadata)
+        click.secho(f'Interpreting this document as {str(metadatum)}')
+        if not click.confirm('Does this look correct?'):
+            text = dedent(
+                '''\
+                # Please fill out the document's metadata in YAML format.  You
+                # can add additional fields, but the fields in the template
+                # must be filled out.
+                title:
+                authors:
+                    -
+                year:
+                '''
+            )
+            metadata = zoia.yaml.edit_until_valid(
+                text, validator_fn=zoia.yaml.metadata_validator
+            )
+            if metadata is None:
+                click.secho('Couldn\'t parse metadata, not adding PDF.')
+                sys.exit(1)
 
+            metadatum = zoia.metadata.Metadatum.from_dict(metadata)
     else:
         text = dedent(
             '''\
@@ -299,6 +320,7 @@ def _add_pdf(identifier, citekey, move_paper=False):
         metadata = zoia.yaml.edit_until_valid(
             text, validator_fn=zoia.yaml.metadata_validator
         )
+
         if metadata is None:
             click.secho('Couldn\'t parse metadata, not adding PDF.')
             sys.exit(1)
