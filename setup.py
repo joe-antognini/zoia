@@ -25,6 +25,7 @@ setuptools.setup(
         'feedparser>=5.2.1',
         'halo>=0.0.30',
         'isbnlib>=3.10.3',
+        'pdfminer.six>=20200726',
         'pyyaml>=5.3.1',
         'requests>=2.24.0',
     ],
