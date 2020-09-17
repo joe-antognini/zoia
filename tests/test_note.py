@@ -1,3 +1,4 @@
+import os
 import tempfile
 import unittest
 import unittest.mock
@@ -48,8 +49,31 @@ class TestNote(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             doc_dir = Path(tmpdir) / 'doe01-foo'
             doc_dir.mkdir()
-            mock_load_metadata.return_value = {'doe01-foo': {}}
+            metadatum = {
+                'title': 'Foo',
+                'authors': [['John', 'Doe']],
+                'year': 2001,
+            }
+            mock_load_metadata.return_value = {'doe01-foo': metadatum}
             mock_get_library_root.return_value = tmpdir
 
-            result = runner.invoke(zoia.cli.zoia, ['note', 'doe01-foo'])
+            mock_edit.return_value = dedent(
+                '''\
+                ---
+                title: Foo
+                authors:
+                    - John Doe
+                year: 2001
+                ---
+                Hello world.
+                '''
+            )
+            result = runner.invoke(zoia.cli.zoia, args=['note', 'doe01-foo'])
             self.assertEqual(result.exit_code, 0)
+
+            self.assertTrue(os.path.isfile(doc_dir / 'notes.md'))
+
+            with open(doc_dir / 'notes.md') as fp:
+                note_body = fp.read()
+
+            self.assertEqual(note_body, 'Hello world.\n')

@@ -2,6 +2,7 @@
 
 import os
 import sys
+import yaml
 
 import click
 
@@ -42,8 +43,38 @@ def note(citekey):
         zoia.config.get_library_root(), citekey, 'notes.md'
     )
 
-    text = None
-    if not os.path.isfile(note_path):
-        text = _create_header(metadata[citekey])
+    header = _create_header(metadata[citekey])
+    body = ''
+    if os.path.isfile(note_path):
+        with open(note_path) as fp:
+            body = fp.read()
 
-    click.edit(text=text, filename=note_path)
+    text = header + body
+    while True:
+        text = click.edit(text=text, extension='.md')
+
+        if text is not None:
+            try:
+                note_docs = yaml.safe_load_all(text)
+                header = next(note_docs)
+                body = zoia.yaml.remove_header(text)
+                with open(note_path, 'w') as fp:
+                    fp.write(body)
+            except StopIteration:
+                # We reach here if the user provided only one document.  (Maybe
+                # they deleted the header.)  Save the whole thing.
+                with open(note_path, 'w') as fp:
+                    fp.write(text)
+            except (yaml.scanner.ScannerError, yaml.parser.ParserError):
+                if click.confirm(
+                    'Error parsing header. Continue editing? If no, the file'
+                    'will be saved as is.'
+                ):
+                    continue
+                else:
+                    with open(note_path, 'w') as fp:
+                        fp.write(text)
+        else:
+            click.secho('No input recorded. Nothing saved.', fg='red')
+
+        break

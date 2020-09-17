@@ -25,3 +25,20 @@ def dump(obj, *args, **kwargs):
     default_kwargs.update(kwargs)
 
     return yaml.dump(obj, *args, **default_kwargs)
+
+
+def remove_header(text):
+    """Remove a header from the text, returning the remaining raw text."""
+
+    body_start = 0
+    n_document_start_tokens = 0
+    for elem in yaml.scan(text):
+        if isinstance(elem, yaml.DocumentStartToken):
+            n_document_start_tokens += 1
+
+        if n_document_start_tokens == 2:
+            if len(text) > elem.end_mark.pointer + 1:
+                body_start = elem.end_mark.pointer + 1
+            break
+
+    return text[body_start:]

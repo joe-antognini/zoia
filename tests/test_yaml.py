@@ -5,7 +5,7 @@ from .context import zoia
 import zoia.yaml
 
 
-class TestYamlDump(unittest.TestCase):
+class TestYaml(unittest.TestCase):
     def test_yaml_dump(self):
         d = {
             'foo': 'bar',
@@ -23,3 +23,20 @@ class TestYamlDump(unittest.TestCase):
         )
 
         self.assertEqual(observed_str, expected_str)
+
+    def test_remove_header(self):
+        text = dedent(
+            '''\
+            ---
+            foo: bar
+            baz:
+                - 1
+                - 2
+            ---
+            Hello world.
+            '''
+        )
+
+        body = zoia.yaml.remove_header(text)
+
+        self.assertEqual(body, 'Hello world.\n')
