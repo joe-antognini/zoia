@@ -280,7 +280,7 @@ def _add_pdf(identifier, citekey, move_paper=False):
     doi = zoia.pdf.get_doi_from_pdf(identifier)
     if doi is not None:
         with Halo(text='Found DOI, querying metadata...'):
-            metadata = _get_doi_metadata(identifier)
+            metadata = _get_doi_metadata(doi)
 
         metadatum = zoia.metadata.Metadatum.from_dict(metadata)
         click.secho(f'Interpreting this document as {str(metadatum)}')

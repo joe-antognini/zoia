@@ -7,6 +7,7 @@
 * [ ] Add a way to try re-downloading an existing paper.
 * [ ] Update the metadata if the tags change in `zoia note`.
 * [ ] Add papers from a URL to a PDF.
+* [ ] Normalize LaTeX in titles.  (Convert \textendash, etc.)
 * [ ] Write `zoia find`
 * [ ] Write a mocked backend for testing.
 * [ ] Add a code coverage tool.
