@@ -178,7 +178,7 @@ def _add_arxiv_id(identifier, citekey=None):
     if pdf.status_code == 200:
         with open(os.path.join(paper_dir, 'document.pdf'), 'wb') as fp:
             fp.write(pdf.content)
-        arxiv_metadata['md5'] = hashlib.md5(pdf.content).hexdigest()
+        arxiv_metadata['pdf_md5'] = hashlib.md5(pdf.content).hexdigest()
     else:
         click.secho('Was unable to fetch a PDF', fg='yellow')
 
@@ -259,7 +259,9 @@ def _add_doi(identifier, citekey):
         if pdf_response.status_code == 200:
             with open(os.path.join(paper_dir, 'document.pdf'), 'wb') as fp:
                 fp.write(pdf_response.content)
-            doi_metadata['md5'] = hashlib.md5(pdf_response.content).hexdigest()
+            doi_metadata['pdf_md5'] = hashlib.md5(
+                pdf_response.content
+            ).hexdigest()
         else:
             click.secho('Was unable to fetch a PDF', fg='yellow')
 

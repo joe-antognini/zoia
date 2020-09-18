@@ -153,4 +153,4 @@ def get_dois():
 def get_md5_hashes():
     """Return a set of all the MD5 hashes of existing PDFs."""
     metadata = load_metadata()
-    return {elem['md5'] for elem in metadata.values() if 'md5' in elem}
+    return {elem['pdf_md5'] for elem in metadata.values() if 'pdf_md5' in elem}

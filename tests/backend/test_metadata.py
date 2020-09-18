@@ -126,7 +126,7 @@ class TestGetMd5s(unittest.TestCase):
             'doe09-foo': {'arxiv_id': '0901.0123'},
             'roe19-baz': {'isbn': '9781499999990'},
             'smith10-bar': {'doi': '10.1000/foo'},
-            'johnson11-qux': {'md5': '2aa5d113c95b2432dbdb7c6440115774'},
+            'johnson11-qux': {'pdf_md5': '2aa5d113c95b2432dbdb7c6440115774'},
         }
 
         md5_hashes = zoia.backend.metadata.get_md5_hashes()
