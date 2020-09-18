@@ -283,7 +283,7 @@ def _add_pdf(identifier, citekey, move_paper=False):
             metadata = _get_doi_metadata(doi)
 
         metadatum = zoia.metadata.Metadatum.from_dict(metadata)
-        click.secho(f'Interpreting this document as {str(metadatum)}')
+        click.secho(f'Found DOI for {str(metadatum)}')
         if not click.confirm('Does this look correct?'):
             text = dedent(
                 '''\
@@ -381,4 +381,4 @@ def add(identifier, citekey):
 
     # TODO: Add something manually
 
-    click.secho(f'Successfully added {str(metadatum)}.', fg='blue')
+    click.secho(f'Success! Added {str(metadatum)}.', fg='blue')
