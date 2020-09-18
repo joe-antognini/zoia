@@ -133,4 +133,8 @@ def normalize(identifier):
                 if identifier.endswith('.pdf'):
                     identifier = identifier[: -len('.pdf')]
 
+    split_identifier = identifier.split('v')
+    if len(split_identifier) == 2:
+        identifier = split_identifier[0]
+
     return identifier

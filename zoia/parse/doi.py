@@ -8,7 +8,7 @@ def is_doi(identifier):
     if not isinstance(identifier, str):
         return False
 
-    identifier = identifier.lower()
+    identifier = normalize(identifier)
     identifier = identifier.split('/')
     if len(identifier) < 2:
         return False

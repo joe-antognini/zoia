@@ -24,7 +24,10 @@
     * [ ] Sphinx/readthedocs
     * [ ] README
 * [ ] Benchmark performance with libraries of various sizes.
-* [ ] Add SQLite database backend
+* [ ] Find a better way to handle different arxiv versions.
+        If the user provides an explicit version we should probably download
+        that version, though we should store the unversioned arxiv ID in the
+        metadata.
 * [ ] Write a web app.
 * [ ] `zoia export`
 * [ ] `zoia import`

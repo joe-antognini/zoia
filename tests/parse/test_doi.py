@@ -12,6 +12,7 @@ class TestDoi(unittest.TestCase):
         self.assertFalse(zoia.parse.doi.is_doi('10.23915'))
         self.assertFalse(zoia.parse.doi.is_doi('10.23915/'))
         self.assertTrue(zoia.parse.doi.is_doi('10.23915/distill.00005'))
+        self.assertTrue(zoia.parse.doi.is_doi('doi:10.23915/distill.00005'))
 
     def test_normalize(self):
         self.assertEqual(

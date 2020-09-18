@@ -86,3 +86,8 @@ class TestNormalize(unittest.TestCase):
             zoia.parse.arxiv.normalize('arxiv.org/pdf/2001.00001.pdf'),
             '2001.00001',
         )
+
+        self.assertEqual(
+            zoia.parse.arxiv.normalize('arxiv:2001.00001v2'),
+            '2001.00001',
+        )
