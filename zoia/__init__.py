@@ -1,4 +1,4 @@
-"""`zoia` is a tool to manage your references."""
+"""Zoia manages your references."""
 
 from ._version import get_versions
 

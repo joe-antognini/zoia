@@ -12,3 +12,4 @@ exclude =
 
 ignore =
     E203,  # Python Black puts whitespace around ':'.
+    W503,  # Python Black puts line break before binary operator.
