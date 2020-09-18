@@ -339,6 +339,7 @@ def _add_pdf(identifier, citekey, move_paper=False):
     else:
         shutil.copyfile(identifier, os.path.join(paper_dir, 'document.pdf'))
 
+    metadata['pdf_md5'] = md5_hash
     zoia.backend.metadata.append_metadata(citekey, metadata)
 
     return metadatum
