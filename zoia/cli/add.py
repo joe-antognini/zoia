@@ -75,8 +75,9 @@ def _get_arxiv_metadata(identifier):
     )
     metadata = {
         'arxiv_id': identifier,
-        'authors': [split_name(elem['name']) for elem in entry['authors']],
+        'entry_type': 'article',
         'title': entry['title'].replace('\n ', ''),
+        'authors': [split_name(elem['name']) for elem in entry['authors']],
         'year': publication_date.year,
         'month': publication_date.month,
     }
@@ -98,8 +99,10 @@ def _get_doi_metadata(doi):
     )
     bib_db = bibtexparser.loads(response.text, parser=parser)
     entry = bib_db.entries[-1]
-    if 'type' in entry:
-        entry['type'] = entry.pop('ENTRYTYPE')
+    if 'ENTRYTYPE' in entry:
+        entry['entry_type'] = entry.pop('ENTRYTYPE')
+    else:
+        entry['entry_type'] = 'article'
 
     if 'year' in entry:
         entry['year'] = int(entry['year'])
@@ -121,6 +124,7 @@ def _get_isbn_metadata(isbn):
             f'Did not receive authors, title, or year for ISBN {isbn}.'
         )
 
+    metadata['entry_type'] = 'book'
     metadata['isbn'] = metadata.pop('ISBN-13')
     keys = list(metadata.keys())
     for key in keys:
@@ -162,11 +166,7 @@ def _add_arxiv_id(identifier, citekey=None):
             arxiv_metadata.update(_get_doi_metadata(arxiv_metadata['doi']))
 
     if citekey is None:
-        metadatum = zoia.backend.metadata.Metadatum(
-            authors=arxiv_metadata['authors'],
-            title=arxiv_metadata['title'],
-            year=arxiv_metadata['year'],
-        )
+        metadatum = zoia.backend.metadata.Metadatum.from_dict(arxiv_metadata)
         citekey = zoia.parse.citekey.create_citekey(metadatum)
     paper_dir = os.path.join(zoia.backend.config.get_library_root(), citekey)
     os.mkdir(paper_dir)
@@ -201,11 +201,7 @@ def _add_isbn(identifier, citekey):
         isbn_metadata = _get_isbn_metadata(identifier)
 
     if citekey is None:
-        metadatum = zoia.backend.metadata.Metadatum(
-            authors=isbn_metadata['authors'],
-            title=isbn_metadata['title'],
-            year=isbn_metadata['year'],
-        )
+        metadatum = zoia.backend.metadata.Metadatum.from_dict(isbn_metadata)
         citekey = zoia.parse.citekey.create_citekey(metadatum)
 
     zoia.backend.metadata.append_metadata(citekey, isbn_metadata)
@@ -236,11 +232,7 @@ def _add_doi(identifier, citekey):
     with Halo(text='Querying DOI metadata...'):
         doi_metadata = _get_doi_metadata(identifier)
 
-    metadatum = zoia.backend.metadata.Metadatum(
-        authors=doi_metadata['authors'],
-        title=doi_metadata['title'],
-        year=doi_metadata['year'],
-    )
+    metadatum = zoia.backend.metadata.Metadatum.from_dict(doi_metadata)
 
     if citekey is None:
         citekey = zoia.parse.citekey.create_citekey(metadatum)

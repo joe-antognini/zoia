@@ -12,6 +12,7 @@ from zoia.parse.normalization import split_name
 
 @dataclass
 class Metadatum:
+    entry_type: str
     title: str
     authors: List[str]
     year: int
@@ -19,6 +20,7 @@ class Metadatum:
     @classmethod
     def from_dict(cls, d):
         return cls(
+            entry_type=d.get('entry_type', 'misc'),
             title=d['title'],
             authors=d['authors'],
             year=d['year'],

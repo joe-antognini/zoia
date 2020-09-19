@@ -70,7 +70,10 @@ class TestCreateCitekey(unittest.TestCase):
     )
     def test_create_citekey_one_author_no_collision(self, mock_load_metadata):
         metadatum = zoia.backend.metadata.Metadatum(
-            title='The Foo Bar', authors=[['John', 'Doe']], year=1999
+            entry_type='article',
+            title='The Foo Bar',
+            authors=[['John', 'Doe']],
+            year=1999,
         )
 
         mock_load_metadata.return_value = {'doe00-baz': None}
@@ -84,7 +87,10 @@ class TestCreateCitekey(unittest.TestCase):
         self, mock_load_metadata
     ):
         metadatum = zoia.backend.metadata.Metadatum(
-            title='The Foo Bar', authors=[['John', 'Doe']], year=1999
+            entry_type='article',
+            title='The Foo Bar',
+            authors=[['John', 'Doe']],
+            year=1999,
         )
 
         mock_load_metadata.return_value = {'doe99-foo': None}
@@ -96,6 +102,7 @@ class TestCreateCitekey(unittest.TestCase):
     )
     def test_create_citekey_two_authors_no_collision(self, mock_load_metadata):
         metadatum = zoia.backend.metadata.Metadatum(
+            entry_type='article',
             title='The Foo Bar',
             authors=[['John', 'Doe'], ['Jane', 'Roe']],
             year=1999,
@@ -112,6 +119,7 @@ class TestCreateCitekey(unittest.TestCase):
         self, mock_load_metadata
     ):
         metadatum = zoia.backend.metadata.Metadatum(
+            entry_type='article',
             title='The Foo Bar',
             authors=[['John', 'Doe'], ['Jane', 'Roe'], ['Joe', 'Bloggs']],
             year=1999,

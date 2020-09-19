@@ -61,6 +61,7 @@ class TestMetadata(unittest.TestCase):
 class TestMetadatum(unittest.TestCase):
     def test_metadatum_from_dict(self):
         d = {
+            'entry_type': 'article',
             'title': 'foo',
             'authors': ['John Doe', 'Jane Roe'],
             'year': 2001,
@@ -72,9 +73,10 @@ class TestMetadatum(unittest.TestCase):
 
     def test_metadatum_str(self):
         metadatum = zoia.backend.metadata.Metadatum(
+            entry_type='article',
+            title='Foo',
             authors=['John Doe', 'Jane Roe'],
             year=2001,
-            title='Foo',
         )
 
         self.assertEqual(str(metadatum), 'Doe & Roe (2001), "Foo"')

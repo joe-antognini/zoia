@@ -10,6 +10,8 @@
         * Show the citekey of the existing paper.
         * Possibly update the metadata if there is more to be found.
 * [ ] Add a way to try re-downloading an existing paper.
+* [ ] Add a way to specify various kinds of metadata when adding a paper.
+    * [ ] Specify the entry type (article, book, etc.)
 * [ ] Update the metadata if the tags change in `zoia note`.
 * [ ] Add papers from a URL to a PDF.
 * [ ] Test `zoia` in `tox` to see which versions of Python are supported.

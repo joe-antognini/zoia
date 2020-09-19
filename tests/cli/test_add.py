@@ -45,6 +45,7 @@ class TestGetArxivMetadata(unittest.TestCase):
 
         observed_metadata = zoia.cli.add._get_arxiv_metadata('1601.00001')
         expected_metadata = {
+            'entry_type': 'article',
             'arxiv_id': '1601.00001',
             'authors': [['Michael', 'Kilgour'], ['Dvira', 'Segal']],
             'title': (
@@ -96,6 +97,7 @@ class TestGetIsbnMetadata(unittest.TestCase):
         observed_metadata = zoia.cli.add._get_isbn_metadata('9781400848898')
 
         expected_metadata = {
+            'entry_type': 'book',
             'isbn': '9781400848898',
             'title': 'Modern Classical Physics',
             'authors': [['Kip S.', 'Thorne'], ['Roger D.', 'Blandford']],
@@ -144,6 +146,7 @@ class TestAddArxivId(unittest.TestCase):
 
         mock_get_doi_metadata.return_value = {
             'journal': 'The Journal of Chemical Physics',
+            'entry_type': 'article',
             'title': (
                 'Inelastic effects in molecular transport junctions: The '
                 'probe technique at high bias'
