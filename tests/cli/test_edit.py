@@ -14,7 +14,7 @@ class TestEdit(unittest.TestCase):
     @unittest.mock.patch(
         'zoia.cli.note.zoia.backend.metadata.replace_metadata'
     )
-    @unittest.mock.patch('zoia.cli.note.zoia.backend.metadata.load_metadata')
+    @unittest.mock.patch('zoia.cli.note.zoia.backend.metadata.get_metadata')
     @unittest.mock.patch('zoia.cli.note.click.edit')
     def test_edit(self, mock_edit, mock_load_metadata, mock_replace_metadata):
 
@@ -26,7 +26,7 @@ class TestEdit(unittest.TestCase):
         new_metadata = copy(orig_metadata)
         new_metadata['year'] = 2002
 
-        mock_load_metadata.return_value = {'doe+roe01-foo': orig_metadata}
+        mock_load_metadata.return_value = orig_metadata
         mock_edit.return_value = json.dumps(new_metadata)
 
         runner = CliRunner()

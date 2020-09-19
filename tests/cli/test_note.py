@@ -39,7 +39,7 @@ class TestCreateHeader(unittest.TestCase):
 
 class TestNote(unittest.TestCase):
     @unittest.mock.patch('zoia.cli.note.zoia.backend.config.get_library_root')
-    @unittest.mock.patch('zoia.cli.note.zoia.backend.metadata.load_metadata')
+    @unittest.mock.patch('zoia.cli.note.zoia.backend.metadata.get_metadata')
     @unittest.mock.patch('zoia.cli.note.click.edit')
     def test_note_no_existing_note(
         self, mock_edit, mock_load_metadata, mock_get_library_root
@@ -48,12 +48,12 @@ class TestNote(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             doc_dir = Path(tmpdir) / 'doe01-foo'
             doc_dir.mkdir()
-            metadatum = {
+            mock_load_metadata.return_value = {
+                'entry_type': 'article',
                 'title': 'Foo',
                 'authors': [['John', 'Doe']],
                 'year': 2001,
             }
-            mock_load_metadata.return_value = {'doe01-foo': metadatum}
             mock_get_library_root.return_value = tmpdir
 
             mock_edit.return_value = dedent(

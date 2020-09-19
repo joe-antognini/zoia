@@ -20,12 +20,12 @@ from zoia.parse import yaml as zoia_yaml
 @click.argument('citekey', required=True)
 def edit(citekey, syntax):
     """Edit the metadata for a document."""
-    metadata = zoia.backend.metadata.load_metadata()
-    if citekey not in metadata:
+    try:
+        metadatum = zoia.backend.metadata.get_metadata(citekey)
+    except KeyError:
         click.secho(f'Citekey {citekey} does not exist in library.', fg='red')
         sys.exit(1)
 
-    metadatum = metadata[citekey]
     text = None
     extension = None
     if syntax == 'json':

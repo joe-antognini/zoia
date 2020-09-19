@@ -19,14 +19,14 @@ class TestMetadata(unittest.TestCase):
     def test_write_load_metadata(self, mock_get_library_root):
         mock_get_library_root.return_value = self.tmpdir
         zoia.backend.metadata._write_metadata({'foo': 'bar'})
-        metadata = zoia.backend.metadata.load_metadata()
+        metadata = zoia.backend.metadata.get_all_metadata()
         self.assertEqual(metadata, {'foo': 'bar'})
 
     def test_append_metadata(self, mock_get_library_root):
         mock_get_library_root.return_value = self.tmpdir
         zoia.backend.metadata._write_metadata({'foo': 'bar'})
         zoia.backend.metadata.append_metadata('baz', 'qux')
-        metadata = zoia.backend.metadata.load_metadata()
+        metadata = zoia.backend.metadata.get_all_metadata()
         self.assertEqual(metadata, {'foo': 'bar', 'baz': 'qux'})
 
     def test_initialize_metadata(self, mock_get_library_root):
@@ -45,7 +45,7 @@ class TestMetadata(unittest.TestCase):
         mock_get_library_root.return_value = self.tmpdir
         zoia.backend.metadata._write_metadata({'foo': 'bar', 'baz': 'qux'})
         zoia.backend.metadata.rename_key('foo', 'quux')
-        metadata = zoia.backend.metadata.load_metadata()
+        metadata = zoia.backend.metadata.get_all_metadata()
         self.assertEqual(metadata, {'quux': 'bar', 'baz': 'qux'})
 
     def test_rename_key_existing_key(self, mock_get_library_root):
@@ -83,7 +83,7 @@ class TestMetadatum(unittest.TestCase):
 
 
 class TestGetArxivIds(unittest.TestCase):
-    @unittest.mock.patch('zoia.backend.metadata.load_metadata')
+    @unittest.mock.patch('zoia.backend.metadata.get_all_metadata')
     def test_get_arxiv_ids(self, mock_load_metadata):
         mock_load_metadata.return_value = {
             'doe09-foo': {'arxiv_id': '0901.0123'},
@@ -96,7 +96,7 @@ class TestGetArxivIds(unittest.TestCase):
 
 
 class TestGetIsbns(unittest.TestCase):
-    @unittest.mock.patch('zoia.backend.metadata.load_metadata')
+    @unittest.mock.patch('zoia.backend.metadata.get_all_metadata')
     def test_get_isbns(self, mock_load_metadata):
         mock_load_metadata.return_value = {
             'doe09-foo': {'arxiv_id': '0901.0123'},
@@ -109,7 +109,7 @@ class TestGetIsbns(unittest.TestCase):
 
 
 class TestGetDois(unittest.TestCase):
-    @unittest.mock.patch('zoia.backend.metadata.load_metadata')
+    @unittest.mock.patch('zoia.backend.metadata.get_all_metadata')
     def test_get_dois(self, mock_load_metadata):
         mock_load_metadata.return_value = {
             'doe09-foo': {'arxiv_id': '0901.0123'},
@@ -122,7 +122,7 @@ class TestGetDois(unittest.TestCase):
 
 
 class TestGetMd5s(unittest.TestCase):
-    @unittest.mock.patch('zoia.backend.metadata.load_metadata')
+    @unittest.mock.patch('zoia.backend.metadata.get_all_metadata')
     def test_get_dois(self, mock_load_metadata):
         mock_load_metadata.return_value = {
             'doe09-foo': {'arxiv_id': '0901.0123'},

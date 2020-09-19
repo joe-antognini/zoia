@@ -355,10 +355,7 @@ def _add_pdf(identifier, citekey, move_paper=False):
     help='Specify the BibTex citation key.',
 )
 def add(identifier, citekey):
-    if (
-        citekey is not None
-        and citekey in zoia.backend.metadata.load_metadata()
-    ):
+    if not zoia.backend.metadata.citekey_exists(citekey):
         click.secho(f'Citekey {citekey} already exists.', fg='red')
         sys.exit(1)
 

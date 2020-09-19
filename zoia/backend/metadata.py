@@ -52,6 +52,7 @@ class Metadatum:
         for i_word, word in enumerate(self.title.split()):
             str_len += len(word) + 1
             title_str.append(word)
+            # TODO: Make this configurable.
             if str_len > 65 and i_word > 2:
                 title_str.append('...')
                 break
@@ -59,8 +60,8 @@ class Metadatum:
         return s + f'"{title_str}"'
 
 
-def load_metadata():
-    """Load the metadata for the library."""
+def get_all_metadata():
+    """Load the metadata for the entire library."""
 
     library_root = get_library_root()
     if library_root is None:
@@ -71,6 +72,34 @@ def load_metadata():
         metadata = json.load(fp)
 
     return metadata
+
+
+def citekey_exists(citekey):
+    """Determine whether the citekey exists int he library."""
+
+    library_root = get_library_root()
+    if library_root is None:
+        return False
+
+    metadata_filename = os.path.join(library_root, ZOIA_METADATA_FILENAME)
+    with open(metadata_filename) as fp:
+        metadata = json.load(fp)
+
+    return citekey in metadata
+
+
+def get_metadata(citekey):
+    """Load the metadata for a citekey."""
+
+    library_root = get_library_root()
+    if library_root is None:
+        return None
+
+    metadata_filename = os.path.join(library_root, ZOIA_METADATA_FILENAME)
+    with open(metadata_filename) as fp:
+        metadata = json.load(fp)
+
+    return metadata[citekey]
 
 
 def _write_metadata(metadata):
@@ -103,7 +132,7 @@ def initialize_metadata():
 
 def append_metadata(key, value):
     """Append the given data to the metadata file."""
-    metadata = load_metadata()
+    metadata = get_all_metadata()
     if key in metadata:
         raise KeyError(f'Key {key} is already present.')
 
@@ -113,7 +142,7 @@ def append_metadata(key, value):
 
 def replace_metadata(key, value):
     """Replace the data for a given key."""
-    metadata = load_metadata()
+    metadata = get_all_metadata()
     if key not in metadata:
         raise KeyError(f'Key {key} not present.')
 
@@ -123,7 +152,7 @@ def replace_metadata(key, value):
 
 def rename_key(old_key, new_key):
     """Rename a citekey in the metadata."""
-    metadata = load_metadata()
+    metadata = get_all_metadata()
 
     if new_key in metadata:
         raise KeyError(f'Key {new_key} is already present.')
@@ -134,7 +163,7 @@ def rename_key(old_key, new_key):
 
 def get_arxiv_ids():
     """Return a set of all existing arXiv identifiers."""
-    metadata = load_metadata()
+    metadata = get_all_metadata()
     return {
         elem['arxiv_id'] for elem in metadata.values() if 'arxiv_id' in elem
     }
@@ -142,17 +171,17 @@ def get_arxiv_ids():
 
 def get_isbns():
     """Return a set of all existing ISBNs."""
-    metadata = load_metadata()
+    metadata = get_all_metadata()
     return {elem['isbn'] for elem in metadata.values() if 'isbn' in elem}
 
 
 def get_dois():
     """Return a set of all existing DOIs."""
-    metadata = load_metadata()
+    metadata = get_all_metadata()
     return {elem['doi'] for elem in metadata.values() if 'doi' in elem}
 
 
 def get_md5_hashes():
     """Return a set of all the MD5 hashes of existing PDFs."""
-    metadata = load_metadata()
+    metadata = get_all_metadata()
     return {elem['pdf_md5'] for elem in metadata.values() if 'pdf_md5' in elem}

@@ -66,9 +66,9 @@ class TestHelpers(unittest.TestCase):
 
 class TestCreateCitekey(unittest.TestCase):
     @unittest.mock.patch(
-        'zoia.parse.citekey.zoia.backend.metadata.load_metadata'
+        'zoia.parse.citekey.zoia.backend.metadata.citekey_exists'
     )
-    def test_create_citekey_one_author_no_collision(self, mock_load_metadata):
+    def test_create_citekey_one_author_no_collision(self, mock_citekey_exists):
         metadatum = zoia.backend.metadata.Metadatum(
             entry_type='article',
             title='The Foo Bar',
@@ -76,15 +76,15 @@ class TestCreateCitekey(unittest.TestCase):
             year=1999,
         )
 
-        mock_load_metadata.return_value = {'doe00-baz': None}
+        mock_citekey_exists.return_value = False
         citekey = zoia.parse.citekey.create_citekey(metadatum)
         self.assertEqual(citekey, 'doe99-foo')
 
     @unittest.mock.patch(
-        'zoia.parse.citekey.zoia.backend.metadata.load_metadata'
+        'zoia.parse.citekey.zoia.backend.metadata.citekey_exists'
     )
     def test_create_citekey_one_author_with_collision(
-        self, mock_load_metadata
+        self, mock_citekey_exists
     ):
         metadatum = zoia.backend.metadata.Metadatum(
             entry_type='article',
@@ -93,14 +93,16 @@ class TestCreateCitekey(unittest.TestCase):
             year=1999,
         )
 
-        mock_load_metadata.return_value = {'doe99-foo': None}
+        mock_citekey_exists.side_effect = lambda x: x == 'doe99-foo'
         citekey = zoia.parse.citekey.create_citekey(metadatum)
         self.assertEqual(citekey, 'doe99b-foo')
 
     @unittest.mock.patch(
-        'zoia.parse.citekey.zoia.backend.metadata.load_metadata'
+        'zoia.parse.citekey.zoia.backend.metadata.citekey_exists'
     )
-    def test_create_citekey_two_authors_no_collision(self, mock_load_metadata):
+    def test_create_citekey_two_authors_no_collision(
+        self, mock_citekey_exists
+    ):
         metadatum = zoia.backend.metadata.Metadatum(
             entry_type='article',
             title='The Foo Bar',
@@ -108,15 +110,15 @@ class TestCreateCitekey(unittest.TestCase):
             year=1999,
         )
 
-        mock_load_metadata.return_value = {'doe00-baz': None}
+        mock_citekey_exists.return_value = False
         citekey = zoia.parse.citekey.create_citekey(metadatum)
         self.assertEqual(citekey, 'doe+roe99-foo')
 
     @unittest.mock.patch(
-        'zoia.parse.citekey.zoia.backend.metadata.load_metadata'
+        'zoia.parse.citekey.zoia.backend.metadata.citekey_exists'
     )
     def test_create_citekey_three_authors_no_collision(
-        self, mock_load_metadata
+        self, mock_citekey_exists
     ):
         metadatum = zoia.backend.metadata.Metadatum(
             entry_type='article',
@@ -125,6 +127,6 @@ class TestCreateCitekey(unittest.TestCase):
             year=1999,
         )
 
-        mock_load_metadata.return_value = {'doe00-baz': None}
+        mock_citekey_exists.return_value = False
         citekey = zoia.parse.citekey.create_citekey(metadatum)
         self.assertEqual(citekey, 'doe+99-foo')

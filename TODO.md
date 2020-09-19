@@ -1,7 +1,6 @@
 # To-do list
 
 * [ ] Use `redislite` to handle the backend.
-* [ ] Fix issue with adding PDF where arXiv ID is not added.
 * [ ] Write `zoia tag`
 * [ ] Add a "no download" flag to `zoia add`
 * [ ] Handle existing papers better.
