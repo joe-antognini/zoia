@@ -178,7 +178,12 @@ def _add_arxiv_id(identifier, citekey=None):
     if pdf.status_code == 200:
         with open(os.path.join(paper_dir, 'document.pdf'), 'wb') as fp:
             fp.write(pdf.content)
-        arxiv_metadata['pdf_md5'] = hashlib.md5(pdf.content).hexdigest()
+        md5_hash = hashlib.md5(pdf.content).hexdigest()
+        arxiv_metadata['pdf_md5'] = md5_hash
+        if md5_hash in zoia.backend.metadata.get_md5_hashes():
+            raise ZoiaExistingItemException(
+                f'arXiv paper {identifier} already exists.'
+            )
     else:
         click.secho('Was unable to fetch a PDF', fg='yellow')
 
@@ -281,6 +286,10 @@ def _add_pdf(identifier, citekey, move_paper=False):
 
     doi = zoia.parse.pdf.get_doi_from_pdf(identifier)
     if doi is not None:
+        if doi in zoia.backend.metadata.get_dois():
+            raise ZoiaExistingItemException(
+                f'DOI corresponding to {identifier} already exists.'
+            )
         with Halo(text='Found DOI, querying metadata...'):
             metadata = _get_doi_metadata(doi)
 

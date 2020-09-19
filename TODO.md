@@ -1,12 +1,18 @@
 # To-do list
 
+* [ ] Use `redislite` to handle the backend.
+* [ ] Fix issue with adding PDF where arXiv ID is not added.
 * [ ] Write `zoia tag`
-* [ ] Make a singleton class to handle metadata operations.
-* [ ] Write a class to represent an object's metadata.
 * [ ] Add a "no download" flag to `zoia add`
+* [ ] Handle existing papers better.
+        * Add possibility to merge papers.
+* [ ] Print a better error message if a user tries to add an existing paper.
+        * Show the citekey of the existing paper.
+        * Possibly update the metadata if there is more to be found.
 * [ ] Add a way to try re-downloading an existing paper.
 * [ ] Update the metadata if the tags change in `zoia note`.
 * [ ] Add papers from a URL to a PDF.
+* [ ] Test `zoia` in `tox` to see which versions of Python are supported.
 * [ ] Normalize LaTeX in titles.  (Convert \textendash, etc.)
 * [ ] Write `zoia find`
 * [ ] Write a mocked backend for testing.
