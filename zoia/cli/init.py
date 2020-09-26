@@ -1,15 +1,12 @@
 """Implementation of the `zoia init` command."""
 
 import os
-import sys
 from pathlib import Path
 
 import click
 
 import zoia
 import zoia.backend.metadata
-from zoia.backend.config import get_library_root
-from zoia.backend.config import set_library_root
 
 
 def _is_valid_init_dir(directory):
@@ -24,7 +21,7 @@ def _is_valid_init_dir(directory):
     return not Path(directory).exists() or len(os.listdir(directory)) == 0
 
 
-def _get_default_directory():
+def _get_default_library_root():
     """Return a default directory for the zoia library root.
 
     The default library root will be set by trying the following directories in
@@ -45,39 +42,36 @@ def _get_default_directory():
 
 
 @click.command()
-@click.argument('directory', required=False, default=None)
-def init(directory):
+def init():
     """Initialize the `zoia` library."""
-    current_library_root = get_library_root()
-    if current_library_root is not None:
-        click.secho(
-            f'Warning: Found existing zoia library at {current_library_root}',
-            fg='yellow',
-        )
-        confirmation = click.confirm('Choose a new directory?')
-        if not confirmation:
-            click.secho('Exiting.', fg='red')
-            sys.exit(1)
 
-    while not _is_valid_init_dir(directory):
-        if directory is not None:
+    while True:
+        library_root = click.prompt(
+            'Please provide a directory for your library',
+            default=_get_default_library_root(),
+        )
+        library_root = os.path.expanduser(library_root)
+
+        if _is_valid_init_dir(library_root):
+            break
+
+        if library_root is not None:
             click.secho(
-                f'Error: Directory {directory} exists and is not empty.',
+                f'Error: Directory {library_root} exists and is not empty.',
                 fg='red',
             )
-        directory = click.prompt(
-            'Please provide a directory for your library',
-            default=_get_default_directory(),
-        )
-        directory = os.path.expanduser(directory)
 
-    os.makedirs(directory, exist_ok=True)
-    set_library_root(directory)
+    os.makedirs(library_root, exist_ok=True)
+    config = zoia.backend.config.ZoiaConfig(library_root=library_root)
+    zoia.backend.config.save_config(config)
+
+    os.makedirs(config.db_root, exist_ok=True)
 
     # Start with an empty dictionary in the metadata file.
-    zoia.backend.metadata.initialize_metadata()
+    metadata = zoia.backend.metadata.get_metadata(config)
+    metadata.write()
 
     click.secho(
-        f'Your zoia library was successfully initialized at {directory}!',
+        f'Your zoia library was successfully initialized at {library_root}!',
         fg='blue',
     )

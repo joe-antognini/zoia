@@ -1,12 +1,10 @@
 """Tools to interact with the library metadata."""
 
-import json
-import os
+from abc import ABC
+from abc import abstractmethod
 from dataclasses import dataclass
 from typing import List
 
-from zoia.backend.config import get_library_root
-from zoia.backend.config import ZOIA_METADATA_FILENAME
 from zoia.parse.normalization import split_name
 
 
@@ -25,6 +23,11 @@ class Metadatum:
             authors=d['authors'],
             year=d['year'],
         )
+
+    def to_dict(self):
+        return {
+            key: getattr(self, key) for key in self.__dataclass_fields__.keys()
+        }
 
     def __post_init__(self):
         if not isinstance(self.authors, list):
@@ -60,128 +63,66 @@ class Metadatum:
         return s + f'"{title_str}"'
 
 
-def get_all_metadata():
-    """Load the metadata for the entire library."""
+class Metadata(ABC):
+    """An abstract class with the API to interact with metadata."""
 
-    library_root = get_library_root()
-    if library_root is None:
-        return {}
+    @abstractmethod
+    def __init__(self, config):
+        """Initialize the metadata database."""
 
-    metadata_filename = os.path.join(library_root, ZOIA_METADATA_FILENAME)
-    with open(metadata_filename) as fp:
-        metadata = json.load(fp)
+    @abstractmethod
+    def __contains__(self, citekey):
+        """Determine whether the citekey exists in the library."""
 
-    return metadata
+    @abstractmethod
+    def __getitem__(self, citekey):
+        """Load the metadata for a citekey."""
 
+    @abstractmethod
+    def write(self):
+        """Write the metadata for the library to disk.
 
-def citekey_exists(citekey):
-    """Determine whether the citekey exists int he library."""
+        Note that this will overwrite any existing metadata.
 
-    library_root = get_library_root()
-    if library_root is None:
-        return False
+        """
 
-    metadata_filename = os.path.join(library_root, ZOIA_METADATA_FILENAME)
-    with open(metadata_filename) as fp:
-        metadata = json.load(fp)
+    @abstractmethod
+    def append(self, key, value):
+        """Append the given data to the metadata file."""
 
-    return citekey in metadata
+    @abstractmethod
+    def replace(self, key, value):
+        """Replace the data for a given key."""
 
+    @abstractmethod
+    def rename_key(self, old_key, new_key):
+        """Rename a citekey in the metadata."""
 
-def get_metadata(citekey):
-    """Load the metadata for a citekey."""
+    @abstractmethod
+    def arxiv_ids(self):
+        """Return a set of all existing arXiv identifiers."""
 
-    library_root = get_library_root()
-    if library_root is None:
-        return None
+    @abstractmethod
+    def isbns(self):
+        """Return a set of all existing ISBNs."""
 
-    metadata_filename = os.path.join(library_root, ZOIA_METADATA_FILENAME)
-    with open(metadata_filename) as fp:
-        metadata = json.load(fp)
+    @abstractmethod
+    def dois(self):
+        """Return a set of all existing DOIs."""
 
-    return metadata[citekey]
-
-
-def _write_metadata(metadata):
-    """Write the metadata for the library to disk.
-
-    Note that this will overwrite any existing metadata.
-
-    """
-    library_root = get_library_root()
-    if library_root is None:
-        raise RuntimeError('No library root set.  Cannot write metadata!')
-
-    metadata_filename = os.path.join(library_root, ZOIA_METADATA_FILENAME)
-    with open(metadata_filename, 'w') as fp:
-        json.dump(metadata, fp, indent=4, sort_keys=True)
+    @abstractmethod
+    def pdf_md5_hashes(self):
+        """Return a set of all the MD5 hashes of existing PDFs."""
 
 
-def initialize_metadata():
-    """Initialize an empty metadata file on the disk."""
-    library_root = get_library_root()
-    metadata_filename = os.path.join(library_root, ZOIA_METADATA_FILENAME)
+def get_metadata(config):
+    """Get the appropriate metadata class from the config dataclass."""
 
-    if os.path.exists(metadata_filename):
-        raise RuntimeError(
-            f'Metadata file already exists at {metadata_filename}'
+    import zoia.backend.json
+
+    if config.backend == zoia.backend.config.ZoiaBackend.JSON:
+        return zoia.backend.json.JSONMetadata(config)
+    else:
+        raise NotImplementedError(
+            f'Backend {config.backend.value} not implemented yet.'
         )
-
-    _write_metadata({})
-
-
-def append_metadata(key, value):
-    """Append the given data to the metadata file."""
-    metadata = get_all_metadata()
-    if key in metadata:
-        raise KeyError(f'Key {key} is already present.')
-
-    metadata[key] = value
-    _write_metadata(metadata)
-
-
-def replace_metadata(key, value):
-    """Replace the data for a given key."""
-    metadata = get_all_metadata()
-    if key not in metadata:
-        raise KeyError(f'Key {key} not present.')
-
-    metadata[key] = value
-    _write_metadata(metadata)
-
-
-def rename_key(old_key, new_key):
-    """Rename a citekey in the metadata."""
-    metadata = get_all_metadata()
-
-    if new_key in metadata:
-        raise KeyError(f'Key {new_key} is already present.')
-
-    metadata[new_key] = metadata.pop(old_key)
-    _write_metadata(metadata)
-
-
-def get_arxiv_ids():
-    """Return a set of all existing arXiv identifiers."""
-    metadata = get_all_metadata()
-    return {
-        elem['arxiv_id'] for elem in metadata.values() if 'arxiv_id' in elem
-    }
-
-
-def get_isbns():
-    """Return a set of all existing ISBNs."""
-    metadata = get_all_metadata()
-    return {elem['isbn'] for elem in metadata.values() if 'isbn' in elem}
-
-
-def get_dois():
-    """Return a set of all existing DOIs."""
-    metadata = get_all_metadata()
-    return {elem['doi'] for elem in metadata.values() if 'doi' in elem}
-
-
-def get_md5_hashes():
-    """Return a set of all the MD5 hashes of existing PDFs."""
-    metadata = get_all_metadata()
-    return {elem['pdf_md5'] for elem in metadata.values() if 'pdf_md5' in elem}

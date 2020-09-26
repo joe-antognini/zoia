@@ -34,17 +34,16 @@ def _create_header(metadatum):
 @click.argument('citekey', required=True)
 def note(citekey):
     """Write a note for a document."""
-    try:
-        metadata = zoia.backend.metadata.get_metadata(citekey)
-    except KeyError:
+    config = zoia.backend.config.load_config()
+    metadata = zoia.backend.metadata.get_metadata(config)
+    if citekey not in metadata:
         click.secho(f'Citekey {citekey} does not exist in library.', fg='red')
         sys.exit(1)
 
-    note_path = os.path.join(
-        zoia.backend.config.get_library_root(), citekey, 'notes.md'
-    )
+    note_path = os.path.join(config.library_root, citekey, 'notes.md')
 
-    header = _create_header(metadata)
+    metadatum = metadata[citekey]
+    header = _create_header(metadatum)
     body = ''
     if os.path.isfile(note_path):
         with open(note_path) as fp:

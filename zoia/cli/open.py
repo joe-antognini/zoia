@@ -9,9 +9,8 @@ import zoia.backend.config
 
 
 def _open(citekey):
-    document_path = os.path.join(
-        zoia.backend.config.get_library_root(), citekey, 'document.pdf'
-    )
+    config = zoia.backend.config.load_config()
+    document_path = os.path.join(config.library_root, citekey, 'document.pdf')
     if not os.path.isfile(document_path):
         raise FileNotFoundError(f'No document found for citekey {citekey}.')
 

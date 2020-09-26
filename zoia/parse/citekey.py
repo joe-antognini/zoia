@@ -53,7 +53,7 @@ def _generate_identifiers():
         yield ''.join(identifiers)
 
 
-def create_citekey(metadatum):
+def create_citekey(metadata, metadatum):
     """Create a unique citekey for the object."""
 
     n_citekey_authors = 2 if len(metadatum.authors) == 2 else 1
@@ -74,12 +74,12 @@ def create_citekey(metadatum):
     # TODO: Add a note to the README that this behavior is currently resolving
     # collisions by the order the reference was added to zoia, not by the
     # original date or title.  (This should be user-configurable.)
-    if zoia.backend.metadata.citekey_exists(proposed_citekey):
+    if proposed_citekey in metadata:
         for identifier in _generate_identifiers():
             proposed_citekey = _apply_citekey_format(
                 name_string, year, first_word_of_title, identifier
             )
-            if not zoia.backend.metadata.citekey_exists(proposed_citekey):
+            if proposed_citekey not in metadata:
                 break
 
     return proposed_citekey

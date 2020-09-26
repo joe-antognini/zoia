@@ -1,5 +1,4 @@
 import os
-import tempfile
 import unittest
 import unittest.mock
 from pathlib import Path
@@ -8,6 +7,7 @@ from textwrap import dedent
 from click.testing import CliRunner
 
 from ..context import zoia
+from ..fixtures.metadata import ZoiaUnitTest
 import zoia.cli.note
 
 
@@ -37,42 +37,42 @@ class TestCreateHeader(unittest.TestCase):
         self.assertEqual(observed_header, expected_header)
 
 
-class TestNote(unittest.TestCase):
-    @unittest.mock.patch('zoia.cli.note.zoia.backend.config.get_library_root')
-    @unittest.mock.patch('zoia.cli.note.zoia.backend.metadata.get_metadata')
+class TestNote(ZoiaUnitTest):
+    @unittest.mock.patch('zoia.cli.note.zoia.backend.config.load_config')
     @unittest.mock.patch('zoia.cli.note.click.edit')
-    def test_note_no_existing_note(
-        self, mock_edit, mock_load_metadata, mock_get_library_root
-    ):
+    def test_note_no_existing_note(self, mock_edit, mock_load_config):
         runner = CliRunner()
-        with tempfile.TemporaryDirectory() as tmpdir:
-            doc_dir = Path(tmpdir) / 'doe01-foo'
-            doc_dir.mkdir()
-            mock_load_metadata.return_value = {
+
+        mock_load_config.return_value = self.config
+        doc_dir = Path(self.config.library_root) / 'doe01-foo'
+        doc_dir.mkdir()
+        self.metadata._metadata = {
+            'doe01-foo': {
                 'entry_type': 'article',
                 'title': 'Foo',
                 'authors': [['John', 'Doe']],
                 'year': 2001,
-            }
-            mock_get_library_root.return_value = tmpdir
+            },
+        }
+        self.metadata.write()
 
-            mock_edit.return_value = dedent(
-                '''\
-                ---
-                title: Foo
-                authors:
-                    - John Doe
-                year: 2001
-                ---
-                Hello world.
-                '''
-            )
-            result = runner.invoke(zoia.cli.zoia, args=['note', 'doe01-foo'])
-            self.assertEqual(result.exit_code, 0)
+        mock_edit.return_value = dedent(
+            '''\
+            ---
+            title: Foo
+            authors:
+                - John Doe
+            year: 2001
+            ---
+            Hello world.
+            '''
+        )
+        result = runner.invoke(zoia.cli.zoia, args=['note', 'doe01-foo'])
+        self.assertEqual(result.exit_code, 0)
 
-            self.assertTrue(os.path.isfile(doc_dir / 'notes.md'))
+        self.assertTrue(os.path.isfile(doc_dir / 'notes.md'))
 
-            with open(doc_dir / 'notes.md') as fp:
-                note_body = fp.read()
+        with open(doc_dir / 'notes.md') as fp:
+            note_body = fp.read()
 
-            self.assertEqual(note_body, 'Hello world.\n')
+        self.assertEqual(note_body, 'Hello world.\n')

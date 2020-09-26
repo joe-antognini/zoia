@@ -1,4 +1,3 @@
-import hashlib
 import json
 import os
 import tempfile
@@ -9,6 +8,8 @@ from pathlib import Path
 import requests
 
 from ..context import zoia
+from ..fixtures.metadata import ZoiaUnitTest
+import zoia.backend.json
 import zoia.cli.add
 
 
@@ -110,9 +111,6 @@ class TestGetIsbnMetadata(unittest.TestCase):
 
 
 class TestAddArxivId(unittest.TestCase):
-    @unittest.mock.patch('zoia.cli.add.zoia.backend.config.get_library_root')
-    @unittest.mock.patch('zoia.cli.add.zoia.backend.metadata.get_arxiv_ids')
-    @unittest.mock.patch('zoia.cli.add.zoia.backend.metadata.append_metadata')
     @unittest.mock.patch('zoia.cli.add._get_doi_metadata')
     @unittest.mock.patch('zoia.cli.add._get_arxiv_metadata')
     @unittest.mock.patch('zoia.cli.add.requests.get')
@@ -121,16 +119,11 @@ class TestAddArxivId(unittest.TestCase):
         mock_requests_get,
         mock_get_arxiv_metadata,
         mock_get_doi_metadata,
-        mock_append_metadata,
-        mock_get_arxiv_ids,
-        mock_get_library_root,
     ):
         response = unittest.mock.MagicMock()
         response.status_code = 200
         response.content = b'\xde\xad\xbe\xef'
         mock_requests_get.return_value = response
-
-        mock_get_arxiv_ids.return_value = {'doe99-foo', 'smith01-bar'}
 
         mock_get_arxiv_metadata.return_value = {
             'arxiv_id': '1601.00001',
@@ -164,69 +157,58 @@ class TestAddArxivId(unittest.TestCase):
         }
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            mock_get_library_root.return_value = tmpdir
-
-            zoia.cli.add._add_arxiv_id('1601.00001')
-
-            self.assertTrue(
-                (
-                    Path(tmpdir) / 'kilgour+segal16-inelastic/document.pdf'
-                ).exists()
+            library_root = Path(tmpdir) / 'library'
+            library_root.mkdir()
+            db_root = Path(tmpdir) / 'metadata'
+            db_root.mkdir()
+            config = zoia.backend.config.ZoiaConfig(
+                library_root=library_root, db_root=db_root
             )
+            metadata = zoia.backend.json.JSONMetadata(config)
+            zoia.cli.add._add_arxiv_id(metadata, '1601.00001')
+
+            document_path = (
+                library_root / 'kilgour+segal16-inelastic/document.pdf'
+            )
+            self.assertTrue(document_path.exists())
 
 
-class TestAddIsbn(unittest.TestCase):
-    @unittest.mock.patch('zoia.cli.add.zoia.backend.config.get_library_root')
-    @unittest.mock.patch('zoia.cli.add.zoia.backend.metadata.append_metadata')
+class TestAddIsbn(ZoiaUnitTest):
     @unittest.mock.patch('zoia.cli.add.zoia.parse.citekey.create_citekey')
     @unittest.mock.patch('zoia.cli.add._get_isbn_metadata')
-    @unittest.mock.patch('zoia.cli.add.zoia.backend.metadata.get_isbns')
     def test__add_isbn(
         self,
-        mock_get_isbns,
         mock_get_isbn_metadata,
         mock_create_citekey,
-        mock_append_metadata,
-        mock_get_library_root,
     ):
-        mock_get_isbns.return_value = {}
-
-        metadata = {
+        metadatum = {
             'authors': [['Kip', 'Thorne'], ['Roger', 'Blandford']],
             'title': 'Modern Classical Physics',
             'year': '2017',
         }
-        mock_get_isbn_metadata.return_value = metadata
+        mock_get_isbn_metadata.return_value = metadatum
         mock_citekey = 'thorne+blandford17-modern'
         mock_create_citekey.return_value = mock_citekey
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            mock_get_library_root.return_value = tmpdir
-            zoia.cli.add._add_isbn(identifier='9781400848898', citekey=None)
+        zoia.cli.add._add_isbn(
+            self.metadata, identifier='9781400848898', citekey=None
+        )
 
-            self.assertTrue((Path(tmpdir) / mock_citekey).is_dir())
+        self.assertTrue(
+            (Path(self.config.library_root) / mock_citekey).is_dir()
+        )
 
-        mock_append_metadata.assert_called_once_with(mock_citekey, metadata)
 
-
-class TestAddDoi(unittest.TestCase):
-    @unittest.mock.patch('zoia.cli.add.zoia.backend.metadata.get_dois')
+class TestAddDoi(ZoiaUnitTest):
     @unittest.mock.patch('zoia.cli.add.requests.get')
     @unittest.mock.patch('zoia.cli.add._get_doi_metadata')
     @unittest.mock.patch('zoia.cli.add.zoia.parse.citekey.create_citekey')
-    @unittest.mock.patch('zoia.cli.add.zoia.backend.config.get_library_root')
-    @unittest.mock.patch('zoia.cli.add.zoia.backend.metadata.append_metadata')
     def test__add_doi(
         self,
-        mock_append_metadata,
-        mock_get_library_root,
         mock_create_citekey,
         mock__get_doi_metadata,
         mock_requests_get,
-        mock_get_dois,
     ):
-        mock_get_dois.return_value = {}
-
         mock_arxiv_response = unittest.mock.MagicMock()
         mock_arxiv_response.status_code = 200
         mock_arxiv_response.text = json.dumps({'arxivId': '1504.05957'})
@@ -258,69 +240,47 @@ class TestAddDoi(unittest.TestCase):
         citekey = 'antognini15-timescales'
         mock_create_citekey.return_value = citekey
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            mock_get_library_root.return_value = tmpdir
-            zoia.cli.add._add_doi('10.1093/mnras/stv1552', citekey=None)
+        zoia.cli.add._add_doi(
+            self.metadata, '10.1093/mnras/stv1552', citekey=None
+        )
 
-            self.assertTrue(
-                (Path(tmpdir) / citekey / 'document.pdf').is_file()
-            )
-
-        mock_append_metadata.assert_called_once_with(
-            'antognini15-timescales',
-            {
-                'authors': [['J.', 'Antognini']],
-                'title': 'Timescales of Kozai-Lidov oscillations',
-                'year': 2015,
-                'arxiv_id': '1504.05957',
-                'pdf_md5': hashlib.md5(mock_pdf_response.content).hexdigest(),
-            },
+        self.assertTrue(
+            (
+                Path(self.config.library_root) / citekey / 'document.pdf'
+            ).is_file()
         )
 
 
-class TestAddPdf(unittest.TestCase):
-    @unittest.mock.patch('zoia.cli.add.zoia.backend.metadata.append_metadata')
-    @unittest.mock.patch('zoia.cli.add.zoia.backend.config.get_library_root')
+class TestAddPdf(ZoiaUnitTest):
     @unittest.mock.patch('zoia.cli.add.click.confirm')
     @unittest.mock.patch('zoia.cli.add._get_doi_metadata')
     @unittest.mock.patch('zoia.cli.add.zoia.parse.pdf.get_doi_from_pdf')
-    @unittest.mock.patch('zoia.cli.add.zoia.backend.metadata.get_md5_hashes')
     def test__add_pdf(
         self,
-        mock_get_md5_hashes,
         mock_get_doi_from_pdf,
         mock_get_doi_metadata,
         mock_click_confirm,
-        mock_get_library_root,
-        mock_append_metadata,
     ):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            library_root = os.path.join(tmpdir, 'zoia')
-            os.mkdir(library_root)
-            mock_get_library_root.return_value = library_root
+        identifier = os.path.join(self.config.library_root, 'foo.pdf')
+        with open(identifier, 'wb') as fp:
+            fp.write(b'%PDF')
 
-            identifier = os.path.join(tmpdir, 'foo.pdf')
-            with open(identifier, 'wb') as fp:
-                fp.write(b'%PDF')
+        mock_get_doi_from_pdf.return_value = '10.1000/foo'
+        mock_metadata = {
+            'title': 'Foo',
+            'authors': [['John', 'Doe']],
+            'year': 1999,
+        }
+        mock_get_doi_metadata.return_value = mock_metadata
 
-            mock_get_md5_hashes.return_value = {}
+        mock_click_confirm.return_value = True
 
-            mock_get_doi_from_pdf.return_value = '10.1000/foo'
-            mock_metadata = {
-                'title': 'Foo',
-                'authors': [['John', 'Doe']],
-                'year': 1999,
-            }
-            mock_get_doi_metadata.return_value = mock_metadata
+        zoia.cli.add._add_pdf(
+            self.metadata, identifier, citekey=None, move_paper=False
+        )
 
-            mock_click_confirm.return_value = True
-
-            zoia.cli.add._add_pdf(identifier, citekey=None, move_paper=False)
-
-            mock_append_metadata.assert_called_once_with(
-                'doe99-foo', mock_metadata
-            )
-
-            self.assertTrue(
-                (Path(library_root) / 'doe99-foo/document.pdf').is_file()
-            )
+        self.assertTrue(
+            (
+                Path(self.config.library_root) / 'doe99-foo/document.pdf'
+            ).is_file()
+        )

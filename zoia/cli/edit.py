@@ -20,11 +20,13 @@ from zoia.parse import yaml as zoia_yaml
 @click.argument('citekey', required=True)
 def edit(citekey, syntax):
     """Edit the metadata for a document."""
-    try:
-        metadatum = zoia.backend.metadata.get_metadata(citekey)
-    except KeyError:
+    config = zoia.backend.config.load_config()
+    metadata = zoia.backend.metadata.get_metadata(config)
+    if citekey not in metadata:
         click.secho(f'Citekey {citekey} does not exist in library.', fg='red')
         sys.exit(1)
+
+    metadatum = metadata[citekey]
 
     text = None
     extension = None
@@ -59,7 +61,7 @@ def edit(citekey, syntax):
         click.secho('File not saved, not changing metadata.', fg='red')
         sys.exit(1)
 
-    zoia.backend.metadata.replace_metadata(citekey, new_metadatum)
+    metadata.replace(citekey, new_metadatum)
 
     click.secho(
         f'Successfully edited metadata for '
