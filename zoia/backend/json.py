@@ -13,9 +13,7 @@ class JSONMetadata(zoia.backend.metadata.Metadata):
         self.config = config
         self._metadata = {}
         self.metadata_filename = None
-        self.metadata_filename = os.path.join(
-            config.library_root, 'metadata.json'
-        )
+        self.metadata_filename = os.path.join(config.db_root, 'metadata.json')
 
         if os.path.exists(self.metadata_filename):
             with open(self.metadata_filename) as fp:
@@ -37,7 +35,7 @@ class JSONMetadata(zoia.backend.metadata.Metadata):
         Note that this will overwrite any existing metadata.
 
         """
-        if self.config.library_root is None:
+        if self.config.db_root is None:
             raise RuntimeError('No library root set.  Cannot write metadata!')
 
         with open(self.metadata_filename, 'w') as fp:
