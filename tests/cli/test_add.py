@@ -37,7 +37,7 @@ class TestGetArxivMetadata(unittest.TestCase):
         response.status_code = 200
         with open(
             os.path.join(
-                os.path.dirname(__file__), '../fixtures/arxiv_response.xml'
+                os.path.dirname(__file__), '../fixtures/arxiv_response.json'
             )
         ) as fp:
             response.text = fp.read()
@@ -48,13 +48,13 @@ class TestGetArxivMetadata(unittest.TestCase):
         expected_metadata = {
             'entry_type': 'article',
             'arxiv_id': '1601.00001',
-            'authors': [['Michael', 'Kilgour'], ['Dvira', 'Segal']],
+            'authors': [['Michael', 'Kilgour'], ['D.', 'Segal']],
             'title': (
                 'Inelastic effects in molecular transport junctions: The '
-                'probe technique at high bias'
+                'probe technique at high bias.'
             ),
-            'year': 2015,
-            'month': 12,
+            'year': 2016,
+            'url': 'https://arxiv.org/abs/1601.00001',
             'doi': '10.1063/1.4944470',
         }
 

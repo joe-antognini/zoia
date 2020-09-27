@@ -5,14 +5,12 @@ import json
 import os
 import shutil
 import sys
-from datetime import datetime
 from multiprocessing.dummy import Process as ThreadProcess
 from multiprocessing.dummy import Queue as ThreadQueue
 from textwrap import dedent
 
 import bibtexparser
 import click
-import feedparser
 import isbnlib
 import requests
 from halo import Halo
@@ -56,34 +54,35 @@ def _validate_response(response, identifier):
 def _get_arxiv_metadata(identifier):
     """Get the DOI identifier (if it exists) from the arXiv API."""
     response = requests.get(
-        f'https://export.arxiv.org/api/query?id_list={identifier}'
+        f'https://api.semanticscholar.org/v1/paper/arXiv:{identifier}'
     )
     _validate_response(response, identifier)
-    parsed_response = feedparser.parse(response.text)
-    try:
-        entry = parsed_response['entries'][0]
-        if 'id' not in entry:
-            raise ZoiaExternalApiException(
-                f'Identifier {identifier} not found'
-            )
+    parsed_response = json.loads(response.text)
 
-    except (KeyError, IndexError):
-        raise ZoiaExternalApiException(f'Identifier {identifier} not found')
+    if 'title' not in parsed_response:
+        raise RuntimeError('Received response that didn\'t include a title.')
+    if 'authors' not in parsed_response:
+        raise RuntimeError(
+            'Received response that didn\'t include an authors list.'
+        )
+    if 'year' not in parsed_response:
+        raise RuntimeError('Received response that didn\'t include a year.')
 
-    publication_date = datetime.strptime(
-        entry['published'], '%Y-%m-%dT%H:%M:%SZ'
-    )
+    title = parsed_response['title']
+    authors = [split_name(elem['name']) for elem in parsed_response['authors']]
+    year = parsed_response['year']
+
     metadata = {
         'arxiv_id': identifier,
         'entry_type': 'article',
-        'title': entry['title'].replace('\n ', ''),
-        'authors': [split_name(elem['name']) for elem in entry['authors']],
-        'year': publication_date.year,
-        'month': publication_date.month,
+        'title': title,
+        'authors': authors,
+        'year': year,
+        'url': f'https://arxiv.org/abs/{identifier}',
     }
 
-    if 'arxiv_doi' in entry:
-        metadata['doi'] = entry['arxiv_doi']
+    if parsed_response.get('doi') is not None:
+        metadata['doi'] = parsed_response['doi']
 
     return metadata
 
