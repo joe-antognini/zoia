@@ -189,7 +189,7 @@ def _add_arxiv_id(metadata, identifier, citekey=None):
 
     metadata.append(citekey, arxiv_metadata)
 
-    return metadatum
+    return citekey, metadatum
 
 
 def _add_isbn(metadata, identifier, citekey):
@@ -209,7 +209,7 @@ def _add_isbn(metadata, identifier, citekey):
     book_dir = os.path.join(metadata.config.library_root, citekey)
     os.mkdir(book_dir)
 
-    return metadatum
+    return citekey, metadatum
 
 
 def _add_doi(metadata, identifier, citekey):
@@ -264,7 +264,7 @@ def _add_doi(metadata, identifier, citekey):
 
     metadata.append(citekey, doi_metadata)
 
-    return metadatum
+    return citekey, metadatum
 
 
 def _add_pdf(metadata, identifier, citekey, move_paper=False):
@@ -345,7 +345,7 @@ def _add_pdf(metadata, identifier, citekey, move_paper=False):
     metadatum_dict['pdf_md5'] = md5_hash
     metadata.append(citekey, metadatum_dict)
 
-    return metadatum
+    return citekey, metadatum
 
 
 @click.command()
@@ -376,15 +376,17 @@ def add(identifier, citekey):
 
     try:
         if id_type == IdType.ARXIV:
-            metadatum = _add_arxiv_id(metadata, normalized_identifier, citekey)
+            add_fn = _add_arxiv_id
         elif id_type == IdType.ISBN:
-            metadatum = _add_isbn(metadata, normalized_identifier, citekey)
+            add_fn = _add_isbn
         elif id_type == IdType.DOI:
-            metadatum = _add_doi(metadata, normalized_identifier, citekey)
+            add_fn = _add_doi
         elif id_type == IdType.PDF:
-            metadatum = _add_pdf(metadata, normalized_identifier, citekey)
+            add_fn = _add_pdf
+        citekey, metadatum = add_fn(metadata, normalized_identifier, citekey)
     except (ZoiaExternalApiException, ZoiaExistingItemException) as e:
         click.secho(f'{str(e)}', fg='red')
         sys.exit(1)
 
-    click.secho(f'Success! Added {str(metadatum)}.', fg='blue')
+    click.secho(f'Success! Added {citekey}:', fg='blue')
+    click.secho(f'    {str(metadatum)}', fg='blue')

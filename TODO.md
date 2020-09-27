@@ -1,6 +1,8 @@
 # To-do list
 
-* [ ] Use `redislite` to handle the backend.
+* [ ] Print the citekey when a paper is added.
+* [ ] DOI is not getting added when a paper is added via arxiv ID.
+* [ ] Use SQLite to handle the backend.
 * [ ] Write `zoia tag`
 * [ ] Add a "no download" flag to `zoia add`
 * [ ] Handle existing papers better.
