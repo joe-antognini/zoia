@@ -99,19 +99,19 @@ class Metadata(ABC):
         """Rename a citekey in the metadata."""
 
     @abstractmethod
-    def arxiv_ids(self):
+    def arxiv_id_exists(self):
         """Return a set of all existing arXiv identifiers."""
 
     @abstractmethod
-    def isbns(self):
+    def isbn_exists(self):
         """Return a set of all existing ISBNs."""
 
     @abstractmethod
-    def dois(self):
+    def doi_exists(self):
         """Return a set of all existing DOIs."""
 
     @abstractmethod
-    def pdf_md5_hashes(self):
+    def pdf_md5_hash_exists(self):
         """Return a set of all the MD5 hashes of existing PDFs."""
 
 
@@ -119,9 +119,12 @@ def get_metadata(config):
     """Get the appropriate metadata class from the config dataclass."""
 
     import zoia.backend.json
+    import zoia.backend.sqlite
 
     if config.backend == zoia.backend.config.ZoiaBackend.JSON:
         return zoia.backend.json.JSONMetadata(config)
+    if config.backend == zoia.backend.config.ZoiaBackend.SQLITE:
+        return zoia.backend.sqlite.SQLiteMetadata(config)
     else:
         raise NotImplementedError(
             f'Backend {config.backend.value} not implemented yet.'

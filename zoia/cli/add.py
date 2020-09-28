@@ -143,7 +143,7 @@ def _get_isbn_metadata(isbn):
 
 
 def _add_arxiv_id(metadata, identifier, citekey=None):
-    if identifier in metadata.arxiv_ids():
+    if metadata.arxiv_id_exists(identifier):
         raise ZoiaExistingItemException(
             f'arXiv paper {identifier} already exists.'
         )
@@ -179,7 +179,7 @@ def _add_arxiv_id(metadata, identifier, citekey=None):
             fp.write(pdf.content)
         md5_hash = hashlib.md5(pdf.content).hexdigest()
         arxiv_metadata['pdf_md5'] = md5_hash
-        if md5_hash in metadata.pdf_md5_hashes():
+        if metadata.pdf_md5_hash_exists(md5_hash):
             raise ZoiaExistingItemException(
                 f'arXiv paper {identifier} already exists.'
             )
@@ -193,7 +193,7 @@ def _add_arxiv_id(metadata, identifier, citekey=None):
 
 def _add_isbn(metadata, identifier, citekey):
     """Add an entry from an ISBN."""
-    if identifier in metadata.isbns():
+    if metadata.isbn_exists(identifier):
         raise ZoiaExistingItemException(f'ISBN {identifier} already exists.')
 
     with Halo(text='Querying ISBN metadata...', spinner='dots'):
@@ -213,7 +213,7 @@ def _add_isbn(metadata, identifier, citekey):
 
 def _add_doi(metadata, identifier, citekey):
     """Add an entry from a DOI."""
-    if identifier in metadata.dois():
+    if metadata.doi_exists(identifier):
         raise ZoiaExistingItemException(f'DOI {identifier} already exists.')
 
     # Query Semantic Scholar to get the corresponding arxiv ID (if there is
@@ -271,12 +271,12 @@ def _add_pdf(metadata, identifier, citekey, move_paper=False):
     with open(identifier, 'rb') as fp:
         pdf = fp.read()
     md5_hash = hashlib.md5(pdf).hexdigest()
-    if md5_hash in metadata.pdf_md5_hashes():
+    if metadata.pdf_md5_hash_exists(md5_hash):
         raise ZoiaExistingItemException(f'PDF{identifier} already exists.')
 
     doi = zoia.parse.pdf.get_doi_from_pdf(identifier)
     if doi is not None:
-        if doi in metadata.dois():
+        if metadata.doi_exists(doi):
             raise ZoiaExistingItemException(
                 f'DOI corresponding to {identifier} already exists.'
             )
@@ -358,7 +358,7 @@ def _add_pdf(metadata, identifier, citekey, move_paper=False):
 def add(identifier, citekey):
     config = zoia.backend.config.load_config()
     metadata = zoia.backend.metadata.get_metadata(config)
-    if citekey in metadata:
+    if citekey and citekey in metadata:
         click.secho(f'Citekey {citekey} already exists.', fg='red')
         sys.exit(1)
 
