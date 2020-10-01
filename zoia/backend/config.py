@@ -25,7 +25,7 @@ class ZoiaBackend(Enum):
 class ZoiaConfig:
     library_root: str
     db_root: str = None
-    backend: ZoiaBackend = ZoiaBackend.JSON
+    backend: ZoiaBackend = ZoiaBackend.SQLITE
 
     def __post_init__(self):
         if self.db_root is None:

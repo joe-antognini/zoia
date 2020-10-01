@@ -7,12 +7,13 @@ import zoia.backend.metadata
 
 
 class JSONMetadata(zoia.backend.metadata.Metadata):
+    """A class to interact with the JSON backend."""
+
     def __init__(self, config):
         """Load the metadata for the library into memory."""
 
         self.config = config
         self._metadata = {}
-        self.metadata_filename = None
         self.metadata_filename = os.path.join(config.db_root, 'metadata.json')
 
         if os.path.exists(self.metadata_filename):
@@ -65,30 +66,22 @@ class JSONMetadata(zoia.backend.metadata.Metadata):
         self._metadata[new_key] = self._metadata.pop(old_key)
         self.write()
 
-    def arxiv_ids(self):
+    def arxiv_id_exists(self, arxiv_id):
         """Return a set of all existing arXiv identifiers."""
-        return {
-            elem['arxiv_id']
-            for elem in self._metadata.values()
-            if 'arxiv_id' in elem
-        }
+        arxiv_ids = {elem.get('arxiv_id') for elem in self._metadata.values()}
+        return arxiv_id in arxiv_ids
 
-    def isbns(self):
+    def isbn_exists(self, isbn):
         """Return a set of all existing ISBNs."""
-        return {
-            elem['isbn'] for elem in self._metadata.values() if 'isbn' in elem
-        }
+        isbns = {elem.get('isbn') for elem in self._metadata.values()}
+        return isbn in isbns
 
-    def dois(self):
+    def doi_exists(self, doi):
         """Return a set of all existing DOIs."""
-        return {
-            elem['doi'] for elem in self._metadata.values() if 'doi' in elem
-        }
+        dois = {elem.get('doi') for elem in self._metadata.values()}
+        return doi in dois
 
-    def pdf_md5_hashes(self):
+    def pdf_md5_hash_exists(self, pdf_md5):
         """Return a set of all the MD5 hashes of existing PDFs."""
-        return {
-            elem['pdf_md5']
-            for elem in self._metadata.values()
-            if 'pdf_md5' in elem
-        }
+        pdf_md5s = {elem.get('pdf_md5') for elem in self._metadata.values()}
+        return pdf_md5 in pdf_md5s

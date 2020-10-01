@@ -88,17 +88,21 @@ class TestMetadataGetters(ZoiaUnitTest):
         }
 
     def test_get_arxiv_ids(self):
-        arxiv_ids = self.metadata.arxiv_ids()
-        self.assertEqual(arxiv_ids, {'0901.0123', '1002.1001'})
+        self.assertTrue(self.metadata.arxiv_id_exists('0901.0123'))
+        self.assertFalse(self.metadata.arxiv_id_exists('0901.0124'))
 
     def test_get_isbns(self):
-        isbns = self.metadata.isbns()
-        self.assertEqual(isbns, {'9781499999990'})
+        self.assertTrue(self.metadata.isbn_exists('9781499999990'))
+        self.assertFalse(self.metadata.isbn_exists('9781499999991'))
 
     def test_get_dois(self):
-        dois = self.metadata.dois()
-        self.assertEqual(dois, {'10.1000/foo'})
+        self.assertTrue(self.metadata.doi_exists('10.1000/foo'))
+        self.assertFalse(self.metadata.doi_exists('10.1000/bar'))
 
     def test_get_pdf_md5_hashes(self):
-        md5_hashes = self.metadata.pdf_md5_hashes()
-        self.assertEqual(md5_hashes, {'2aa5d113c95b2432dbdb7c6440115774'})
+        self.assertTrue(
+            self.metadata.pdf_md5_hash_exists(
+                '2aa5d113c95b2432dbdb7c6440115774'
+            )
+        )
+        self.assertFalse(self.metadata.pdf_md5_hash_exists('foo'))

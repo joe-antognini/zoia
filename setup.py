@@ -22,12 +22,12 @@ setuptools.setup(
     install_requires=[
         'bibtexparser>=1.2.0',
         'click>=7.1.2',
-        'feedparser>=5.2.1',
         'halo>=0.0.30',
         'isbnlib>=3.10.3',
         'pdfminer.six>=20200726',
         'pyyaml>=5.3.1',
         'requests>=2.24.0',
+        'sqlalchemy>=1.3.19',
     ],
     entry_points={
         'console_scripts': ['zoia=zoia.cli:zoia'],
