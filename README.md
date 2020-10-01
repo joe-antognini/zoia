@@ -15,7 +15,8 @@ pip install zoia
 `zoia` uses a simple, flat layout to organize data.  Every paper is referenced
 by a unique citation key (typically shortened to "citekey").  This would be
 the same key that you would reference with `citep` or `citet` in LaTeX.
-Bibliographic data is stored in a file called `.metadata.json`.
+Bibliographic data is by default stored in a SQLite database called
+`metadata.db` which is located in `$HOME/.local/share/zoia`.
 
 Each paper also gets its own subdirectory in the root directory.  Within each
 subdirectory the document (if it exists) is stored as `document.pdf`.  Any
@@ -28,10 +29,9 @@ A sample directory structure might look like this:
 
 ```
 my_library
-         ├── einstein05-electrodynamics
-         │   ├── document.pdf
-         │   └── notes.md
-         └── .metadata.json
+         └── einstein05-electrodynamics
+             ├── document.pdf
+             └── notes.md
 ```
 
 ## Citation key style
