@@ -3,6 +3,7 @@
 import click
 
 from zoia.cli.add import add
+from zoia.cli.config import config
 from zoia.cli.edit import edit
 from zoia.cli.init import init
 from zoia.cli.note import note
@@ -16,6 +17,7 @@ def zoia():
 
 
 zoia.add_command(add)
+zoia.add_command(config)
 zoia.add_command(edit)
 zoia.add_command(init)
 zoia.add_command(note)

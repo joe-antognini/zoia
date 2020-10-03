@@ -31,6 +31,9 @@ class ZoiaConfig:
         if self.db_root is None:
             self.db_root = _get_db_root()
 
+        if isinstance(self.backend, str):
+            self.backend = ZoiaBackend(self.backend)
+
     def to_dict(self):
         d = {
             elem: getattr(self, elem)

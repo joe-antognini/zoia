@@ -1,7 +1,9 @@
 # To-do list
 
-* [ ] Use SQLite to handle the backend.
-* [ ] Write `zoia tag`
+* [ ] Write `zoia config`.
+* [ ] Write `zoia tag`.
+* [ ] Write `zoia find`
+* [ ] Add tab completion.
 * [ ] Add a "no download" flag to `zoia add`
 * [ ] Handle existing papers better.
         * Add possibility to merge papers.
@@ -15,17 +17,10 @@
 * [ ] Add papers from a URL to a PDF.
 * [ ] Test `zoia` in `tox` to see which versions of Python are supported.
 * [ ] Normalize LaTeX in titles.  (Convert \textendash, etc.)
-* [ ] Write `zoia find`
 * [ ] Write a mocked backend for testing.
 * [ ] Add a code coverage tool.
 * [ ] Handle BibIDs.
 * [ ] Write `zoia rm`
-* [ ] Write `zoia config` to set configuration
-* [ ] Add more config options
-    * [ ] JSON/YAML indentation
-    * [ ] How to store metadata
-        * [ ] YAML
-        * [ ] SQLite
 * [ ] Write docs
     * [ ] Docstrings
     * [ ] Sphinx/readthedocs
@@ -35,8 +30,8 @@
         If the user provides an explicit version we should probably download
         that version, though we should store the unversioned arxiv ID in the
         metadata.
-* [ ] Write a web app.
 * [ ] `zoia export`
+* [ ] Write a web app.
 * [ ] `zoia import`
 * [ ] Fix pytest timeout.
 * [ ] Add a config option that lets you move vs. copy a PDF if you're adding a
@@ -45,4 +40,3 @@
       browser.
 * [ ] Eliminate `zoia init`?  Should be possible to auto-detect if `zoia` has
       been initialized and run initalization if it hasn't happened.
-* [ ] Add more citekey styles.
