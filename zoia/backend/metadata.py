@@ -14,6 +14,7 @@ class Metadatum:
     title: str
     authors: List[str]
     year: int
+    tags: List[str] = None
 
     @classmethod
     def from_dict(cls, d):
@@ -40,6 +41,9 @@ class Metadatum:
             split_name(elem) if isinstance(elem, str) else elem
             for elem in self.authors
         ]
+
+        if self.tags is None:
+            self.tags = []
 
     def __str__(self):
         if len(self.authors) == 1:

@@ -31,6 +31,7 @@ class TestMetadatum(unittest.TestCase):
             'title': 'Foo',
             'authors': [['John', 'Doe'], ['Jane', 'Roe']],
             'year': 2001,
+            'tags': [],
         }
         self.assertEqual(d, expected_dict)
 

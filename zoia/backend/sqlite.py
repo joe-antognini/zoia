@@ -28,6 +28,19 @@ class Author(Base):
     entry = sqlalchemy.orm.relationship('Entry', backref='authors')
 
 
+class Tag(Base):
+    """A tag for an entry."""
+
+    __tablename__ = 'tags'
+
+    name = sqlalchemy.Column(sqlalchemy.String, primary_key=True)
+
+    entry_id = sqlalchemy.Column(
+        sqlalchemy.Integer, sqlalchemy.ForeignKey('entries.citekey')
+    )
+    entry = sqlalchemy.orm.relationship('Entry', backref='tags')
+
+
 class Entry(Base):
     """A single paper, book, article, etc."""
 
@@ -50,6 +63,7 @@ class Entry(Base):
         authors = [
             [author.first_name, author.last_name] for author in self.authors
         ]
+        tags = [elem.id for elem in self.tags]
 
         dictionary = {
             'citekey': self.citekey,
@@ -57,6 +71,7 @@ class Entry(Base):
             'title': self.title,
             'authors': authors,
             'year': self.year,
+            'tags': tags,
         }
         for key in ['arxiv_id', 'doi', 'isbn', 'pdf_md5']:
             if getattr(self, key) is not None:
@@ -89,6 +104,10 @@ class Entry(Base):
         else:
             authors = None
 
+        tags = []
+        if 'tags' in dictionary:
+            tags = tags.extend([Tag(name=elem) for elem in dictionary['tags']])
+
         return cls(
             citekey=citekey,
             entry_type=dictionary.get('entry_type'),
@@ -99,6 +118,7 @@ class Entry(Base):
             isbn=dictionary.get('isbn'),
             pdf_md5=dictionary.get('pdf_md5'),
             authors=authors,
+            tags=tags,
             other_metadata=other_metadata,
         )
 

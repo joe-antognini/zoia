@@ -1,10 +1,9 @@
 # To-do list
 
-* [ ] Write `zoia config`.
-* [ ] Write `zoia tag`.
 * [ ] Write `zoia find`
-* [ ] Add tab completion.
+* [ ] Add tab completion for citekeys.
 * [ ] Add a "no download" flag to `zoia add`
+* [ ] Add tags from `zoia add` with a `-t` or `--tag` option.
 * [ ] Handle existing papers better.
         * Add possibility to merge papers.
 * [ ] Print a better error message if a user tries to add an existing paper.

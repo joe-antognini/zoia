@@ -8,6 +8,7 @@ from zoia.cli.edit import edit
 from zoia.cli.init import init
 from zoia.cli.note import note
 from zoia.cli.open import open_
+from zoia.cli.tag import tag
 
 
 @click.group()
@@ -22,3 +23,4 @@ zoia.add_command(edit)
 zoia.add_command(init)
 zoia.add_command(note)
 zoia.add_command(open_)
+zoia.add_command(tag)

@@ -39,6 +39,7 @@ class TestEntry(unittest.TestCase):
             'arxiv_id': '2001.00001',
             'authors': [['John', 'Doe'], ['Jane', 'Roe']],
             'journal': 'qux',
+            'tags': [],
         }
 
         self.assertEqual(observed_dict, expected_dict)
@@ -136,6 +137,7 @@ class TestSqlLiteMetadata(unittest.TestCase):
             'pdf_md5': 'foobar',
             'authors': [['John', 'Doe'], ['Jane', 'Roe']],
             'journal': 'qux',
+            'tags': [],
         }
         self.assertEqual(entry, expected_dict)
 
