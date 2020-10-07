@@ -18,7 +18,7 @@ class TestTag(ZoiaUnitTest):
             authors=['John Doe'],
             year=2001,
         )
-        self.metadata.append('doe01-foo', metadatum.to_dict())
+        self.metadata['doe01-foo'] = metadatum.to_dict()
 
         runner = CliRunner()
         result = runner.invoke(

@@ -186,7 +186,7 @@ def _add_arxiv_id(metadata, identifier, citekey=None):
     else:
         click.secho('Was unable to fetch a PDF', fg='yellow')
 
-    metadata.append(citekey, arxiv_metadata)
+    metadata[citekey] = arxiv_metadata
 
     return citekey, metadatum
 
@@ -203,7 +203,7 @@ def _add_isbn(metadata, identifier, citekey):
         metadatum = zoia.backend.metadata.Metadatum.from_dict(isbn_metadata)
         citekey = zoia.parse.citekey.create_citekey(metadata, metadatum)
 
-    metadata.append(citekey, isbn_metadata)
+    metadata[citekey] = isbn_metadata
 
     book_dir = os.path.join(metadata.config.library_root, citekey)
     os.mkdir(book_dir)
@@ -261,7 +261,7 @@ def _add_doi(metadata, identifier, citekey):
         else:
             click.secho('Was unable to fetch a PDF', fg='yellow')
 
-    metadata.append(citekey, doi_metadata)
+    metadata[citekey] = doi_metadata
 
     return citekey, metadatum
 
@@ -342,7 +342,7 @@ def _add_pdf(metadata, identifier, citekey, move_paper=False):
 
     metadatum_dict = metadatum.to_dict()
     metadatum_dict['pdf_md5'] = md5_hash
-    metadata.append(citekey, metadatum_dict)
+    metadata[citekey] = metadatum_dict
 
     return citekey, metadatum
 

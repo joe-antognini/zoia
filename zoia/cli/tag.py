@@ -31,4 +31,4 @@ def tag(citekey, tags):
             [elem for elem in tags if elem not in metadatum['tags']]
         )
 
-    metadata.replace(citekey, metadatum)
+    metadata[citekey] = metadatum

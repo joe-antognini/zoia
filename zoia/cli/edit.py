@@ -61,7 +61,7 @@ def edit(citekey, syntax):
         click.secho('File not saved, not changing metadata.', fg='red')
         sys.exit(1)
 
-    metadata.replace(citekey, new_metadatum)
+    metadata[citekey] = new_metadatum
 
     click.secho(
         f'Successfully edited metadata for '

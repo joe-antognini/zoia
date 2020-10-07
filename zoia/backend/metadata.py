@@ -83,20 +83,16 @@ class Metadata(ABC):
         """Load the metadata for a citekey."""
 
     @abstractmethod
+    def __setitem__(self, citekey, metadatum):
+        """Set the metadata for a citekey."""
+
+    @abstractmethod
     def write(self):
         """Write the metadata for the library to disk.
 
         Note that this will overwrite any existing metadata.
 
         """
-
-    @abstractmethod
-    def append(self, key, value):
-        """Append the given data to the metadata file."""
-
-    @abstractmethod
-    def replace(self, key, value):
-        """Replace the data for a given key."""
 
     @abstractmethod
     def rename_key(self, old_key, new_key):

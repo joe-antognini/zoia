@@ -141,7 +141,7 @@ class TestSqlLiteMetadata(unittest.TestCase):
         }
         self.assertEqual(entry, expected_dict)
 
-    def test_replace(self):
+    def test___setitem__(self):
         self._init_db()
         old_journal = self.metadata['doe+roe01-foo']['journal']
         self.assertNotEqual(old_journal, 'quux')
@@ -154,7 +154,7 @@ class TestSqlLiteMetadata(unittest.TestCase):
             'authors': [['John', 'Doe'], ['Jane', 'Roe']],
             'journal': 'quux',
         }
-        self.metadata.replace('doe+roe01-foo', new_entry)
+        self.metadata['doe+roe01-foo'] = new_entry
         new_journal = self.metadata['doe+roe01-foo']['journal']
         self.assertEqual(new_journal, 'quux')
 

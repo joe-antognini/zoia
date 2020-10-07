@@ -53,10 +53,10 @@ class TestMetadata(unittest.TestCase):
         metadata._metadata = {'foo': 'bar'}
         self.assertEqual(metadata['foo'], 'bar')
 
-    def test_append(self):
+    def test___setitem__(self):
         metadata = zoia.backend.json.JSONMetadata(self.zoia_config)
         metadata._metadata = {'foo': 'bar'}
-        metadata.append('baz', 'qux')
+        metadata['baz'] = 'qux'
         self.assertEqual(metadata._metadata, {'foo': 'bar', 'baz': 'qux'})
 
     def test_rename_key(self):

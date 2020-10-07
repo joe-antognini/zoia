@@ -30,6 +30,15 @@ class JSONMetadata(zoia.backend.metadata.Metadata):
 
         return self._metadata[citekey]
 
+    def __setitem__(self, citekey, metadatum):
+        """Set the metadata for a citekey."""
+
+        if citekey in self:
+            self._metadata[citekey].update(metadatum)
+        else:
+            self._metadata[citekey] = metadatum
+        self.write()
+
     def write(self):
         """Write the metadata for the library to disk.
 
@@ -41,22 +50,6 @@ class JSONMetadata(zoia.backend.metadata.Metadata):
 
         with open(self.metadata_filename, 'w') as fp:
             json.dump(self._metadata, fp, indent=4, sort_keys=True)
-
-    def append(self, key, value):
-        """Append the given data to the metadata file."""
-        if key in self._metadata:
-            raise KeyError(f'Key {key} is already present.')
-
-        self._metadata[key] = value
-        self.write()
-
-    def replace(self, key, value):
-        """Replace the data for a given key."""
-        if key not in self._metadata:
-            raise KeyError(f'Key {key} not present.')
-
-        self._metadata[key] = value
-        self.write()
 
     def rename_key(self, old_key, new_key):
         """Rename a citekey in the metadata."""

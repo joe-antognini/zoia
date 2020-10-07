@@ -150,20 +150,22 @@ class SQLiteMetadata(zoia.backend.metadata.Metadata):
         entry = self.session.query(Entry).filter_by(citekey=citekey).first()
         return entry.to_dict()
 
+    def __setitem__(self, citekey, metadatum):
+        """Set the metadata for a citekey."""
+        new_entry = Entry.from_dict(citekey, metadatum)
+        if citekey in self:
+            query = self.session.query(Entry).filter_by(citekey=citekey)
+            entry = query.first()
+            columns = entry.__table__.columns.keys()
+            update_dict = {
+                column: getattr(new_entry, column) for column in columns
+            }
+            query.update(update_dict)
+        else:
+            self.session.add(new_entry)
+        self.session.commit()
+
     def write(self):
-        self.session.commit()
-
-    def append(self, key, value):
-        self.session.add(Entry.from_dict(key, value))
-        self.session.commit()
-
-    def replace(self, key, value):
-        new_entry = Entry.from_dict(key, value)
-        query = self.session.query(Entry).filter_by(citekey=key)
-        entry = query.first()
-        columns = entry.__table__.columns.keys()
-        update_dict = {key: getattr(new_entry, key) for key in columns}
-        query.update(update_dict)
         self.session.commit()
 
     def rename_key(self, old_key, new_key):
