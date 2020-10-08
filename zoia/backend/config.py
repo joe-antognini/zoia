@@ -17,7 +17,6 @@ ZOIA_METADATA_FILENAME = 'metadata.json'
 
 class ZoiaBackend(Enum):
     JSON = 'json'
-    REDIS = 'redis'
     SQLITE = 'sqlite'
 
 
