@@ -7,6 +7,8 @@ from typing import List
 
 from zoia.parse.normalization import split_name
 
+MAX_CITEKEY_STR_LEN = 65
+
 
 @dataclass
 class Metadatum:
@@ -59,11 +61,11 @@ class Metadatum:
         for i_word, word in enumerate(self.title.split()):
             str_len += len(word) + 1
             title_str.append(word)
-            # TODO: Make this configurable.
-            if str_len > 65 and i_word > 2:
-                title_str.append('...')
+            if str_len > MAX_CITEKEY_STR_LEN and i_word > 2:
                 break
         title_str = ' '.join(title_str)
+        if str_len > MAX_CITEKEY_STR_LEN:
+            title_str += '...'
         return s + f'"{title_str}"'
 
 
