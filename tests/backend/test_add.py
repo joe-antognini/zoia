@@ -9,29 +9,33 @@ import requests
 
 from ..context import zoia
 from ..fixtures.metadata import ZoiaUnitTest
+import zoia.backend.add
 import zoia.backend.json
-import zoia.cli.add
 
 
 class TestValidateResponse(unittest.TestCase):
     def test__validate_response(self):
         response = requests.Response()
         response.status_code = 200
-        self.assertTrue(zoia.cli.add._validate_response(response, None))
+        self.assertTrue(zoia.backend.add._validate_response(response, None))
 
     def test__validate_response_invalid(self):
         response = requests.Response()
         response.status_code = 404
-        with self.assertRaises(zoia.cli.add.ZoiaExternalApiException):
-            self.assertFalse(zoia.cli.add._validate_response(response, None))
+        with self.assertRaises(zoia.backend.add.ZoiaAddException):
+            self.assertFalse(
+                zoia.backend.add._validate_response(response, None)
+            )
 
         response.status_code = 300
-        with self.assertRaises(zoia.cli.add.ZoiaExternalApiException):
-            self.assertFalse(zoia.cli.add._validate_response(response, None))
+        with self.assertRaises(zoia.backend.add.ZoiaAddException):
+            self.assertFalse(
+                zoia.backend.add._validate_response(response, None)
+            )
 
 
 class TestGetArxivMetadata(unittest.TestCase):
-    @unittest.mock.patch('zoia.cli.add.requests.get')
+    @unittest.mock.patch('zoia.backend.add.requests.get')
     def test__get_arxiv_metadata(self, mock_requests_get):
         response = unittest.mock.MagicMock()
         response.status_code = 200
@@ -44,7 +48,7 @@ class TestGetArxivMetadata(unittest.TestCase):
 
         mock_requests_get.return_value = response
 
-        observed_metadata = zoia.cli.add._get_arxiv_metadata('1601.00001')
+        observed_metadata = zoia.backend.add._get_arxiv_metadata('1601.00001')
         expected_metadata = {
             'entry_type': 'article',
             'arxiv_id': '1601.00001',
@@ -62,7 +66,7 @@ class TestGetArxivMetadata(unittest.TestCase):
 
 
 class TestGetDoiMetadata(unittest.TestCase):
-    @unittest.mock.patch('zoia.cli.add.requests.get')
+    @unittest.mock.patch('zoia.backend.add.requests.get')
     def test__get_doi_metadata(self, mock_requests_get):
         response = unittest.mock.MagicMock()
         response.status_code = 200
@@ -75,7 +79,7 @@ class TestGetDoiMetadata(unittest.TestCase):
 
         mock_requests_get.return_value = response
 
-        entry = zoia.cli.add._get_doi_metadata('10.3847/1538-3881/aa9e09')
+        entry = zoia.backend.add._get_doi_metadata('10.3847/1538-3881/aa9e09')
         self.assertEqual(entry['year'], 2018)
         self.assertEqual(
             entry['authors'],
@@ -84,7 +88,7 @@ class TestGetDoiMetadata(unittest.TestCase):
 
 
 class TestGetIsbnMetadata(unittest.TestCase):
-    @unittest.mock.patch('zoia.cli.add.isbnlib.meta')
+    @unittest.mock.patch('zoia.backend.add.isbnlib.meta')
     def test__get_isbn_metadata(self, mock_meta):
         mock_meta.return_value = {
             'ISBN-13': '9781400848898',
@@ -95,7 +99,9 @@ class TestGetIsbnMetadata(unittest.TestCase):
             'Language': 'en',
         }
 
-        observed_metadata = zoia.cli.add._get_isbn_metadata('9781400848898')
+        observed_metadata = zoia.backend.add._get_isbn_metadata(
+            '9781400848898'
+        )
 
         expected_metadata = {
             'entry_type': 'book',
@@ -111,9 +117,9 @@ class TestGetIsbnMetadata(unittest.TestCase):
 
 
 class TestAddArxivId(unittest.TestCase):
-    @unittest.mock.patch('zoia.cli.add._get_doi_metadata')
-    @unittest.mock.patch('zoia.cli.add._get_arxiv_metadata')
-    @unittest.mock.patch('zoia.cli.add.requests.get')
+    @unittest.mock.patch('zoia.backend.add._get_doi_metadata')
+    @unittest.mock.patch('zoia.backend.add._get_arxiv_metadata')
+    @unittest.mock.patch('zoia.backend.add.requests.get')
     def test__add_arxiv_id(
         self,
         mock_requests_get,
@@ -165,7 +171,7 @@ class TestAddArxivId(unittest.TestCase):
                 library_root=library_root, db_root=db_root
             )
             metadata = zoia.backend.json.JSONMetadata(config)
-            zoia.cli.add._add_arxiv_id(metadata, '1601.00001')
+            zoia.backend.add._add_arxiv_id(metadata, '1601.00001')
 
             document_path = (
                 library_root / 'kilgour+segal16-inelastic/document.pdf'
@@ -174,8 +180,8 @@ class TestAddArxivId(unittest.TestCase):
 
 
 class TestAddIsbn(ZoiaUnitTest):
-    @unittest.mock.patch('zoia.cli.add.zoia.parse.citekey.create_citekey')
-    @unittest.mock.patch('zoia.cli.add._get_isbn_metadata')
+    @unittest.mock.patch('zoia.backend.add.zoia.parse.citekey.create_citekey')
+    @unittest.mock.patch('zoia.backend.add._get_isbn_metadata')
     def test__add_isbn(
         self,
         mock_get_isbn_metadata,
@@ -190,7 +196,7 @@ class TestAddIsbn(ZoiaUnitTest):
         mock_citekey = 'thorne+blandford17-modern'
         mock_create_citekey.return_value = mock_citekey
 
-        zoia.cli.add._add_isbn(
+        zoia.backend.add._add_isbn(
             self.metadata, identifier='9781400848898', citekey=None
         )
 
@@ -200,9 +206,9 @@ class TestAddIsbn(ZoiaUnitTest):
 
 
 class TestAddDoi(ZoiaUnitTest):
-    @unittest.mock.patch('zoia.cli.add.requests.get')
-    @unittest.mock.patch('zoia.cli.add._get_doi_metadata')
-    @unittest.mock.patch('zoia.cli.add.zoia.parse.citekey.create_citekey')
+    @unittest.mock.patch('zoia.backend.add.requests.get')
+    @unittest.mock.patch('zoia.backend.add._get_doi_metadata')
+    @unittest.mock.patch('zoia.backend.add.zoia.parse.citekey.create_citekey')
     def test__add_doi(
         self,
         mock_create_citekey,
@@ -240,7 +246,7 @@ class TestAddDoi(ZoiaUnitTest):
         citekey = 'antognini15-timescales'
         mock_create_citekey.return_value = citekey
 
-        zoia.cli.add._add_doi(
+        zoia.backend.add._add_doi(
             self.metadata, '10.1093/mnras/stv1552', citekey=None
         )
 
@@ -252,9 +258,9 @@ class TestAddDoi(ZoiaUnitTest):
 
 
 class TestAddPdf(ZoiaUnitTest):
-    @unittest.mock.patch('zoia.cli.add.click.confirm')
-    @unittest.mock.patch('zoia.cli.add._get_doi_metadata')
-    @unittest.mock.patch('zoia.cli.add.zoia.parse.pdf.get_doi_from_pdf')
+    @unittest.mock.patch('zoia.backend.add.click.confirm')
+    @unittest.mock.patch('zoia.backend.add._get_doi_metadata')
+    @unittest.mock.patch('zoia.backend.add.zoia.parse.pdf.get_doi_from_pdf')
     def test__add_pdf(
         self,
         mock_get_doi_from_pdf,
@@ -275,7 +281,7 @@ class TestAddPdf(ZoiaUnitTest):
 
         mock_click_confirm.return_value = True
 
-        zoia.cli.add._add_pdf(
+        zoia.backend.add._add_pdf(
             self.metadata, identifier, citekey=None, move_paper=False
         )
 
